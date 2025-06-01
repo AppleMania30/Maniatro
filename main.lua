@@ -778,7 +778,7 @@ SMODS.Joker{
     end,
 }
 
--- FATAL (Versión corregida - Multiplicador exponencial real)
+-- FATAL 
 SMODS.Joker{
     key = 'fatal',
     loc_txt = {
@@ -789,7 +789,7 @@ SMODS.Joker{
     },
     atlas = 'ManiaAtlas',
     rarity = 4,
-    cost = 20,
+    cost = 10,
     pools = {['ManiatroOnly'] = true},
     unlocked = true,
     discovered = true,
@@ -797,72 +797,26 @@ SMODS.Joker{
     eternal_compat = true,
     perishable_compat = false,
     pos = {x = 3, y = 2},
-    config = { extra = { applied = false } },
+    config = {},
 
     loc_vars = function(self, info_queue, center)
         return { vars = {} }
     end,
 
     calculate = function(self, card, context)
-        if context.joker_main and context.full_hand and not card.ability.extra.applied then
-            -- Marcar como aplicado para evitar loops
-            card.ability.extra.applied = true
+        if context.joker_main then
+            -- Obtener el multiplicador actual
+            local current_mult = mult or 1
             
-            -- Usar un delay para que actúe después de otros Jokers
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.1,
-                func = function()
-                    -- Obtener el mult actual del hand calculation
-                    local current_mult = 0
-                    
-                    -- Acceder al mult desde el sistema de scoring de Balatro
-                    if G.GAME and G.GAME.current_round and G.GAME.current_round.current_hand then
-                        current_mult = G.GAME.current_round.current_hand.mult or 0
-                    end
-                    
-                    -- Si no hay mult registrado, intentar desde el contexto
-                    if current_mult <= 0 and context.scoring_hand then
-                        current_mult = context.scoring_hand.mult or 0
-                    end
-                    
-                    -- Si aún es 0, usar un valor mínimo
-                    if current_mult <= 0 then
-                        current_mult = 4 -- Tu caso específico
-                    end
-                    
-                    -- Calcular el nuevo valor exponencial
-                    local new_mult = current_mult * current_mult
-                    
-                    -- Aplicar directamente al sistema de Balatro
-                    if G.GAME and G.GAME.current_round and G.GAME.current_round.current_hand then
-                        G.GAME.current_round.current_hand.mult = new_mult
-                    end
-                    
-                    -- También aplicar al contexto si existe
-                    if context.scoring_hand then
-                        context.scoring_hand.mult = new_mult
-                    end
-                    
-                    -- No mostrar mensaje
-                    -- card_eval_status_text(card, 'extra', nil, nil, nil, {
-                    --     message = string.format("Fatal! %d → %d", current_mult, new_mult),
-                    --     colour = G.C.MULT
-                    -- })
-                    
-                    return true
-                end
-            }))
-            
-            -- Reset el flag al final de la mano
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 2.0,
-                func = function()
-                    card.ability.extra.applied = false
-                    return true
-                end
-            }))
+            -- Si el mult es mayor que 1, aplicar exponencial
+            if current_mult > 1 then
+                local exponential = current_mult * (current_mult - 1)
+                return {
+                    mult_mod = exponential,
+                    message = "...",
+                    colour = G.C.MULT
+                }
+            end
         end
     end,
 
