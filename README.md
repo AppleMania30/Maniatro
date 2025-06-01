@@ -29,7 +29,7 @@ Nauiyo (Irónico)
 
 
 
-Mi objetivo es ampliar el mod hasta alcanzar 30 Jokers o más. Tengo varias ideas ya pensadas, así como otras ideas por parte de algunos amigos mios, así que estaros atentos por si hay alguna nueva actualización. ¡Muchas gracias por leer!:D
+Mi objetivo es ampliar el mod hasta alcanzar 30 Jokers o más. Tengo varias ideas ya pensadas, así como otras ideas por parte de algunos amigos mios, así que estaros atentos por si hay alguna nueva actualización. ¡Muchas gracias por leer! :D
 
 
 
