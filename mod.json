@@ -1,0 +1,19 @@
+{
+    "id": "Maniatro",
+    "name": "Maniatro",
+    "display_name": "Maniatro",
+    "author": [
+        "AppleMania"
+    ],
+    "description": "¡Maniatro incluye 15 nuevos Jokers los cuales harán la experiencia de juego mucho más interesante! Amongla incluido en el mod.",
+    "prefix": "mania",
+    "main_file": "main.lua",
+    "priority": 0,
+    "badge_colour": "88c057",
+    "badge_text_colour": "ffffff",
+    "version": "1.1",
+    "dependencies": [
+        "Lovely (>=0.7)",
+        "Balatro (>=1.0.1o)"
+    ]
+}
