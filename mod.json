@@ -9,7 +9,7 @@
     "prefix": "mania",
     "main_file": "main.lua",
     "priority": 0,
-    "badge_colour": "88c057",
+    "badge_colour": "14b82d",
     "badge_text_colour": "ffffff",
     "version": "1.1",
     "dependencies": [
