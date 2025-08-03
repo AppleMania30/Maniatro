@@ -40,13 +40,13 @@ Cada actualización añadirá de 12 a 17 Jokers, los cuales vendrán en forma de
 | 5  | Mia         | Si ganas la ronda sin hacer ningún descarte, gana +25 chips. Si descartas, perderás todo el progreso.|
 | 6  | Parabettle                 | Por cada 10 descartes, gana +25 chips permanentes.|
 | 7  | Joker tributario             | Si tienes menos de 20$, este joker te dará +3$ por cada mano jugada. Si tienes más, no surgirá efecto.|
-| 8  | Mr. (Ant)Tenna | Si ganas la ronda en tu primer intento, +15 multi Si usas más de un intento, -5 multi al acabar la ronda.|
-| 9  | BALATRO TOMORROW          | Por cada Joker de rareza común adquirido, este Joker contiene +15 multi.|
-| 10 | Weezer                  | Cada vez que juegas una mano, hay una probabilidad del 50% de darte +50 chips o quitarte -50 chips.|
-| 11 | Pride               | +0.2X por cada carta más en tu baraja. -0.2X por cada carta menos en tu baraja.|
-| 12 | Lata de cerveza               | Si repites el mismo tipo de mano en dos jugadas seguidas, el multiplicador pasa a X2.5. Aumenta +0.5X por cada repetición adicional.|
-| 13 | Paquete de cigarros              | X3 multi. 0.125% de probabilidad de cerrar el juego.|
+| 8  | Mr. (Ant)Tenna | Todo lo que hay en la tienda tiene un 50% de descuento.|
+| 9  | BALATRO TOMORROW          | Gana +0.25X chips por cada ronda ganada.|
+| 10 | Weezer                  | Este Joker se duplica cada 3 rondas. Por cada Weezer repetido, ganará +0.5X multi.|
+| 11 | Pride               | Gana +69 multi por cada carta policromo que poseas.|
+| 12 | Lata de cerveza               | Empieza con +50 multi. Pierde -5 multi por cada mano jugada.|
+| 13 | Paquete de cigarros              | Al final de cada ronda: Si tienes dinero acumulado, pierdes -1$ y este gana +3 multi |
 | 14 | Caja vacía                | . . . |
-| 15 | Julio                | Permite descartar cualquier cantidad de cartas en tu mano. |
-| 16 | Nuevo comienzo                | Permite descartar cualquier cantidad de cartas en tu mano. |
-| 17 | Determinación                | Permite descartar cualquier cantidad de cartas en tu mano. |
+| 15 | Julio                | +24 multi. Cada 4 manos jugadas, el multi se eleva al cuadrado. |
+| 16 | Nuevo comienzo                | Al final de cada ronda: Destruye un Joker al azar y gana +0.5X chips |
+| 17 | Determinación                | Este Joker aplica X5 multi Cuántas más manos juegues, más fuerte se vuelve.|
