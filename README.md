@@ -1,35 +1,11 @@
 # Maniatro
 
-Maniatro es un mod realmente raro para Balatro que, por ahora, incluye 15 Jokers únicos con habilidades realmente...¿raras? Yo que sé.
+## ¿Qué es Maniatro?
 
-Algunos de estos Jokers han sido posibles gracias a las ideas y apoyo de algunos de mis amigos. Aquí tienes los créditos correspondientes:
+Maniatro es un mod para el juego Balatro que añade nuevos Jokers y más para hacer la experiencia de juego más caótica.
 
-- Bunbxnblxxd (<3):
+## Jokers
 
-Insomnio
-
-
-- Doggo_Ds:
-
-Keep Rollin'
-
-Proto
-
-
-- Lukexs:
-
-Xifox
-
-Loss
-
-
-- Nauiyo:
-
-Nauiyo (Irónico)
-
-
-
-Mi objetivo es ampliar el mod hasta alcanzar 30 Jokers o más. Tengo varias ideas ya pensadas, así como otras ideas por parte de algunos amigos mios, así que estaros atentos por si hay alguna nueva actualización. ¡Muchas gracias por leer! :D
-
+De momento, hay 32 Jokers de los cuales puedes disfrutar en este momento. Cada actualización añadiría de 12 a 17 Jokers, los cuales vendrán en forma de Waves. Varios de estos Jokers han sido creados gracias a las ideas de amigos y más, por lo que esté mod no sería el mismo sin ellos. En el mod estarán las personas que han estado involucradas en esto, con su respectivo agradecimiento.
 
 
