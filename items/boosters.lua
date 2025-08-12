@@ -15,7 +15,7 @@ SMODS.Booster{
     loc_txt= {
         name = 'Semillas de manzanas',
         text = {
-            "{C:attention}¡Elige un joker de 3 de la edición Maniatro!{}"
+            "{C:green}¡Elige un joker de 3 de la edición Maniatro!{}"
         },
         group_name = "¡Planta tus semillas!"
     },
@@ -52,7 +52,7 @@ SMODS.Booster{
     loc_txt= {
         name = 'Semillas de tomates',
         text = {
-            "{C:attention}¡Elige un joker de 4 de la edición Maniatro!{}"
+            "{C:red}¡Elige un joker de 4 de la edición Maniatro!{}"
         },
         group_name = "¡Planta tus semillas!"
     },
@@ -89,7 +89,7 @@ SMODS.Booster{
     loc_txt= {
         name = 'Semillas de arandanos',
         text = {
-            "{C:attention}¡Elige un joker de 5 de la edición Maniatro!{}"
+            "{C:spectral}¡Elige un joker de 5 de la edición Maniatro!{}"
         },
         group_name = "¡Planta tus semillas!"
     },
@@ -126,7 +126,7 @@ SMODS.Booster{
     loc_txt= {
         name = 'Semillas de sandias',
         text = {
-            "{C:attention}¡Elige 2 jokers de 7 de la edición Maniatro!{}"
+            "{C:uncommon}¡Elige 2 jokers de 7 de la edición Maniatro!{}"
         },
         group_name = "¡Planta tus semillas!"
     },
