@@ -4,6 +4,8 @@
 
 Maniatro es un mod para el juego Balatro que añade nuevos Jokers y más para hacer la experiencia de juego más caótica.
 
+<img width="1021" height="737" alt="image" src="https://github.com/user-attachments/assets/a8851da7-2241-401c-9cd3-dbe9ffbb69cf" />
+
 ## Jokers
 
 De momento, hay 45 Jokers, 2 cartas de Tarot y 2 cartas mejoradas para disfrutar en este momento. 
