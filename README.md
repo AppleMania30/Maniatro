@@ -49,7 +49,7 @@ El mod depende de Talisman, aqui un link para poder descargarlo: https://github.
 | 27 | Lata de cerveza               | Empieza con +50 multi. Pierde -5 multi por cada mano jugada.|
 | 28 | Paquete de cigarros              | Al final de cada ronda: Si tienes dinero acumulado, pierdes -1$ y este gana +3 multi |
 | 29 | Caja vacía                | . . . |
-| 30 | Julio                | +24 multi. Cada 4 manos jugadas, el multi se eleva al cuadrado. |
+| 30 | Julio                | +2.4 multi. Cada 4 manos jugadas, el multi se eleva al cuadrado. |
 | 31 | Nuevo comienzo                | Al final de cada ronda: Destruye un Joker al azar y gana +0.5X chips |
 | 32 | Determinación                | Este Joker aplica X5 multi Cuántas más manos juegues, más fuerte se vuelve.|
 
