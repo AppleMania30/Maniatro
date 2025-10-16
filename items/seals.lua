@@ -8,28 +8,28 @@ SMODS.Atlas{
 
 SMODS.Seal {
     key = 'sellocitrico',
+    loc_txt = {
+        name = 'Sello cítrico',
+        text = {
+            'Reactiva esta carta {C:attention}2{}',
+            'veces pero {C:money}-$1{}'
+        }
+    }, 
+    badge_colour = HEX('25ac4d'),
     pos = { x = 0, y = 0 },
     config = {
         extra = {
             retrigger_times = 2,
             dollars = 1,
-            trigger_count = 0,  -- Contador de activaciones
-            max_triggers = 3    -- Máximo de activaciones (1 inicial + 2 reactivaciones)
-        }
-    },
-    badge_colour = HEX('25ac4d'),
-    loc_txt = {
-        name = 'Sello cítrico',
-        label = 'Sello cítrico',
-        text = {
-            [1] = 'Reactiva esta carta {C:attention}2{}',
-            [2] = 'veces pero {C:money}-1${}'
+            trigger_count = 0,
+            max_triggers = 3
         }
     },
     atlas = 'sellocitrico',
     unlocked = true,
     discovered = true,
     no_collection = false,
+    
     calculate = function(self, card, context)
         -- Manejo de las reactivaciones
         if context.repetition and card.should_retrigger then
@@ -51,7 +51,7 @@ SMODS.Seal {
             if card.ability.seal.extra.trigger_count >= card.ability.seal.extra.max_triggers then
                 SMODS.calculate_effect({dollars = -lenient_bignum(card.ability.seal.extra.dollars)}, card)
                 card.should_retrigger = false
-                card.ability.seal.extra.trigger_count = 0  -- Reset para próxima vez
+                card.ability.seal.extra.trigger_count = 0
             end
         end
     end

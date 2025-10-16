@@ -933,8 +933,8 @@ SMODS.ConsumableType {
         ['c_mania_shell'] = true,
     },
     loc_txt = {
-        name = "Cartucho",
-        collection = "Municion",
+        name = "AMMO",
+        collection = "AMMO",
     }
 }
 
@@ -974,5 +974,4 @@ SMODS.Consumable{
     can_use = function(self, card)
         return true
     end
-
 }
