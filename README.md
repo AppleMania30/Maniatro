@@ -15,6 +15,7 @@ Many of the ideas in the mod were created thanks to my great friends, who have s
 <img width="1009" height="950" alt="image" src="https://github.com/user-attachments/assets/5a396ad2-8f32-4a2c-953a-b75b5f3678f0" />
 
 Maniatro depende de los siguientes mods para poder funcionar correctamente:
+
 Maniatro depends on the following mods to function properly:
 
 - Steamodded: https://github.com/Steamodded/smods/releases/tag/1.0.0-beta-0827c
@@ -22,4 +23,5 @@ Maniatro depends on the following mods to function properly:
 - Talisman: https://github.com/SpectralPack/Talisman/releases/tag/v2.5
 
 Tienen que ser la ultima version SI O SI. 
+
 They MUST be the latest version.
