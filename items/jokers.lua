@@ -51,6 +51,129 @@ SMODS.Joker{
     end,
 }
 
+-- Manzana verde +
+SMODS.Atlas{
+    key = 'apple_plus',
+    path = 'apple_plus.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'apple_plus',
+    loc_txt = {
+        name = 'Granny Smith',
+        text = {
+            'Si la mano jugada es un {C:green}#1#{}, añade',
+            'una {C:green,E:1}carta ácida{} a tu mano.',
+            '{C:inactive}El tipo de mano cambia cada ronda.'
+        }
+    },
+    atlas = 'apple_plus',
+    rarity = 2,
+    cost = 7,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    config = { extra = { target_hand = nil } },
+
+    loc_vars = function(self, info_queue, center)
+        -- Traducciones de tipo de mano
+        local hand_translations = {
+            ["Pair"] = "pareja",
+            ["Two Pair"] = "doble pareja", 
+            ["Three of a Kind"] = "trío",
+            ["Straight"] = "escalera",
+            ["Flush"] = "color",
+            ["Full House"] = "full",
+            ["Four of a Kind"] = "póker",
+            ["Straight Flush"] = "escalera de color"
+        }
+        
+        local target_hand = center.ability.extra.target_hand
+        local translated_hand = hand_translations[target_hand] or "desconocido"
+        
+        return { vars = { translated_hand } }
+    end,
+
+    calculate = function(self, card, context)
+        -- Elegir tipo de mano objetivo al inicio de la ronda
+        if context.setting_blind and not context.blueprint then
+            local hands = {"Pair", "Two Pair", "Three of a Kind", "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush"}
+            card.ability.extra.target_hand = hands[math.random(#hands)]
+        end
+
+        -- Si la mano jugada coincide con el tipo objetivo
+        if context.joker_main and context.scoring_name and context.scoring_name == card.ability.extra.target_hand then
+            SMODS.add_card{
+                set = 'Enhanced',                 
+                area = G.hand,                    
+                enhancement = 'm_mania_citrico'   
+            }
+            return {
+                message = "Ñam ñam...",
+                colour = G.C.GREEN
+            }
+        end
+    end
+}
+
+-- Comodín Fructífero
+SMODS.Atlas{
+    key = 'fructifero',
+    path = 'fructifero.png', 
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'fructifero',
+    loc_txt = {
+        name = 'Comodín fructífero',
+        text = {
+            '{C:mult}+3{} multi por cada',
+            'carta jugada con el palo',
+            'de {C:green}Manzana{} cuando anota.'
+        }
+    },
+    atlas = 'fructifero',
+    rarity = 1,
+    cost = 4,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x = 0, y = 0},
+    config = { extra = { mult = 3, suit = 'mania_applesuit' } },
+
+    loc_vars = function(self, info_queue, card)
+        return {
+            vars = {
+                card.ability.extra.mult,
+                localize(card.ability.extra.suit, 'suits_singular')
+            }
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play and context.other_card then
+            if context.other_card:is_suit(card.ability.extra.suit) then
+                return {
+                    mult = card.ability.extra.mult,
+                }
+            end
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
 
 -- Ushanka
 SMODS.Atlas{
@@ -96,6 +219,140 @@ SMODS.Joker{
     end,
 }
 
+-- Ushanka desgastado
+SMODS.Atlas{
+    key = 'ushanka_des',
+    path = 'ushanka_des.png', 
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'ushanka_des',
+    loc_txt = {
+        name = 'Ushanka desgastado',
+        text = {
+            'Cada {C:attention}4{} rondas, hay un {C:green,E:1}25%{} de probabilidad',
+            'de conseguir {C:dark_edition}+1{} espacio para Jokers.',
+            '{C:inactive}Rondas: {C:attention}#1#/4{}'
+        }
+    },
+    atlas = 'ushanka_des',
+    rarity = 3,
+    cost = 10,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x=0, y=0},
+    config = {
+        extra = {
+            rounds_completed = 0,
+            rounds_needed = 4,
+            processed_round_end = false
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.rounds_completed } }
+    end,
+
+    calculate = function(self, card, context)
+        -- Al inicio de una nueva ciega, resetear flag de procesamiento
+        if context.setting_blind and not context.blueprint then
+            card.ability.extra.processed_round_end = false
+            return
+        end
+
+        -- Al final de la ronda
+        if context.end_of_round and not context.blueprint and not card.ability.extra.processed_round_end then
+            card.ability.extra.processed_round_end = true
+            card.ability.extra.rounds_completed = card.ability.extra.rounds_completed + 1
+            
+            -- Verificar si es momento de intentar conseguir espacio
+            if card.ability.extra.rounds_completed >= card.ability.extra.rounds_needed then
+                card.ability.extra.rounds_completed = 0  -- Resetear contador
+                
+                -- 25% de probabilidad
+                if math.random() < 0.25 then
+                    -- Conseguir +1 espacio para Jokers
+                    G.jokers.config.card_limit = G.jokers.config.card_limit + 1
+                    
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.5,
+                        func = function()
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {
+                                message = "¡+1 Espacio Joker!",
+                                colour = G.C.PURPLE
+                            })
+                            card:juice_up(0.3, 0.5)
+                            return true
+                        end
+                    }))
+                    
+                    return {
+                        message = "¡Espacio conseguido!",
+                        colour = G.C.GREEN
+                    }
+                else
+                    -- Falló la probabilidad
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.3,
+                        func = function()
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {
+                                message = "No conseguido...",
+                                colour = G.C.RED
+                            })
+                            return true
+                        end
+                    }))
+                    
+                    return {
+                        message = "Falló (25%)",
+                        colour = G.C.RED
+                    }
+                end
+            else
+                -- Mostrar progreso hacia el siguiente intento
+                local remaining = card.ability.extra.rounds_needed - card.ability.extra.rounds_completed
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.3,
+                    func = function()
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                            message = remaining .. " ronda" .. (remaining > 1 and "s" or "") .. " para intento",
+                            colour = G.C.SUITS.Diamonds
+                        })
+                        return true
+                    end
+                }))
+            end
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.rounds_completed = card.ability.extra.rounds_completed or 0
+        card.ability.extra.rounds_needed = card.ability.extra.rounds_needed or 4
+        card.ability.extra.processed_round_end = card.ability.extra.processed_round_end or false
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.rounds_completed = card_table.ability.extra and card_table.ability.extra.rounds_completed or 0
+        card.ability.extra.rounds_needed = card_table.ability.extra and card_table.ability.extra.rounds_needed or 4
+        card.ability.extra.processed_round_end = false -- Siempre resetear al cargar
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
 -- Xifox 
 SMODS.Atlas{
     key = 'xifox',
@@ -138,6 +395,93 @@ SMODS.Joker{
                 }
             end
         end
+    end,
+}
+
+-- Xifox desgastado 
+SMODS.Atlas{
+    key = 'xifox_des',
+    path = 'xifox_des.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'xifox_des',
+    loc_txt = {
+        name = 'Xifox desgastado',
+        text = {
+            'Si juegas un {C:attention}7{}, hay un {C:green,E:1}10%{} de',
+            'probabilidad de hacerlo {C:dark_edition}policromo{}.'
+        }
+    },
+    atlas = 'xifox_des',
+    rarity = 3,
+    cost = 10,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x=0, y=0},
+    config = {},
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = {} }
+    end,
+
+    calculate = function(self, card, context)
+        -- Comprobar que estamos en el contexto correcto y que other_card es válido
+        if context.individual and context.cardarea == G.play and context.other_card then
+            local oc = context.other_card
+
+            -- Verificar que other_card tenga get_id y sea callable
+            if oc.get_id and type(oc.get_id) == "function" then
+                local id = oc:get_id()
+                if id == 7 then
+                    -- 10% de probabilidad de hacer policromo
+                    if math.random() < 0.10 then
+                        -- Solo intentar set_edition si existe la función
+                        if oc.set_edition and type(oc.set_edition) == "function" then
+                            G.E_MANAGER:add_event(Event({
+                                trigger = 'after',
+                                delay = 0.1,
+                                func = function()
+                                    -- Proteger set_edition por si falla internamente
+                                    local ok, err = pcall(function()
+                                        oc:set_edition({polychrome = true}, true)
+                                    end)
+                                    if not ok then
+                                        -- opcional: loggear el error si existe consola
+                                        print("Error al aplicar polychrome:", err)
+                                    else
+                                        oc:juice_up(0.3, 0.5)
+                                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                                            message = "¡Policromo!",
+                                            colour = G.C.SECONDARY_SET.Spectral
+                                        })
+                                    end
+                                    return true
+                                end
+                            }))
+                        else
+                            -- Fallback: si no existe set_edition, intentar marcar alguna propiedad segura
+                            print("Advertencia: context.other_card no tiene set_edition")
+                        end
+
+                        return {
+                            message = "¡Chacho!",
+                            colour = G.C.SECONDARY_SET.Spectral
+                        }
+                    end
+                end
+            end
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
     end,
 }
 
@@ -189,135 +533,6 @@ SMODS.Joker{
                 }
             end
         end
-    end,
-}
-
--- Keep Rollin'
-SMODS.Atlas{
-    key = 'rollin',
-    path = 'rollin.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'rollin',
-    loc_txt = {
-        name = "Keep Rollin'",
-        text = {
-            'Cualquier carta de {C:spades}picas{} jugada',
-            'tiene un {C:green,E:1}25%{} de probabilidad de retriggearse.',
-            'Si acierta, lo vuelve a intentar en la misma carta.'
-        }
-    },
-    atlas = 'rollin',
-    rarity = 2,
-    cost = 7,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = false,
-    perishable_compat = false,
-    pos = {x=0, y=0},
-    config = {},
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = {} }
-    end,
-
-    calculate = function(self, card, context)
-        -- Aplicar retriggeo en cadena a cartas de picas
-        if context.repetition and context.cardarea == G.play and context.other_card then
-            if context.other_card:is_suit('Spades') then
-                local repetitions = 0
-                local continue_rolling = true
-                
-                -- Bucle para intentar retriggeos consecutivos
-                while continue_rolling do
-                    if math.random() < 0.25 then -- 1/4 de probabilidad
-                        repetitions = repetitions + 1
-                        -- Continúa intentando en la misma carta
-                    else
-                        -- Falló la probabilidad, detener
-                        continue_rolling = false
-                    end
-                end
-                
-                -- Si consiguió al menos un retriggeo
-                if repetitions > 0 then
-                    local message = 'Keep Rollin!'
-                    if repetitions > 1 then
-                        message = 'Keep Rollin! x' .. repetitions
-                    end
-                    
-                    return {
-                        message = message,
-                        repetitions = repetitions,
-                        card = context.other_card,
-                        colour = G.C.BLUE
-                    }
-                end
-            end
-        end
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
-
--- Loss
-SMODS.Atlas{
-    key = 'loss',
-    path = 'loss.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'loss',
-    loc_txt = {
-        name = 'Loss',
-        text = {
-            'Si la mano usada tiene exactamente',
-            '4 cartas en este orden: {C:attention}As, 2, 2, 2{}, gana {X:mult,C:white}X3{} multi.'
-        }
-    },
-    atlas = 'loss',
-    rarity = 2,
-    cost = 5,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = false,
-    perishable_compat = false,
-    pos = {x=0, y=0},
-    config = {},
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = {} }
-    end,
-
-    calculate = function(self, card, context)
-        if context.joker_main and context.full_hand and #context.full_hand == 4 then
-            local ids = {}
-            for i = 1, 4 do
-                ids[i] = context.full_hand[i]:get_id()
-            end
-            if ids[1] == 14 and ids[2] == 2 and ids[3] == 2 and ids[4] == 2 then
-                return {
-                    message = 'Loss',
-                    Xmult_mod = 3
-                }
-            end
-        end
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
     end,
 }
 
@@ -402,6 +617,659 @@ SMODS.Joker{
                 colour = G.C.RED
             }
         end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Proto
+SMODS.Atlas{
+    key = 'proto',
+    path = 'proto.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'proto',
+    loc_txt = {
+        name = 'Proto',
+        text = {
+            'Por cada ronda, copia la habilidad',
+            'de un {C:attention}Joker aleatorio{}.',
+            'Copiando: {C:attention}#1#{}'
+        }
+    },
+    atlas = 'proto',
+    rarity = 4,
+    cost = 15,
+    pools = { ['Maniatromod'] = true },
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = false,
+    pos = { x = 0, y = 0 },
+    config = {
+        extra = {
+            target_joker = nil,
+            current_round = 0
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        local target_name = "Ninguno"
+        if center.ability.extra.target_joker
+        and center.ability.extra.target_joker.config
+        and center.ability.extra.target_joker.config.center then
+            -- Usar nombre localizado si existe
+            local name_data = center.ability.extra.target_joker.config.center.loc_txt
+            if name_data and name_data.name then
+                target_name = name_data.name
+            else
+                target_name = center.ability.extra.target_joker.config.center.name or "Desconocido"
+            end
+        end
+        return { vars = { target_name } }
+    end,
+
+    calculate = function(self, card, context)
+        -- Elegir un Joker aleatorio al inicio de la ronda
+        if context.setting_blind and not context.blueprint then
+            local available_jokers = {}
+            for _, joker in ipairs(G.jokers.cards) do
+                if joker ~= card and joker.config and joker.config.center then
+                    table.insert(available_jokers, joker)
+                end
+            end
+            if #available_jokers > 0 then
+                card.ability.extra.target_joker = available_jokers[math.random(#available_jokers)]
+            else
+                card.ability.extra.target_joker = nil
+            end
+            return
+        end
+
+        -- Aplicar el efecto del Joker copiado
+        if card.ability.extra.target_joker then
+            return SMODS.blueprint_effect(card, card.ability.extra.target_joker, context)
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.target_joker = card.ability.extra.target_joker or nil
+        card.ability.extra.current_round = card.ability.extra.current_round or (G.GAME and G.GAME.round or 0)
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.target_joker = nil
+        card.ability.extra.current_round = card_table.ability.extra and card_table.ability.extra.current_round or (G.GAME and G.GAME.round or 0)
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- FATAL
+SMODS.Atlas{
+    key = 'fatal',
+    path = 'fatal.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'fatal',
+    loc_txt = {
+        name = 'FATAL',
+        text = {
+            '. . .'
+        }
+    },
+    atlas = 'fatal',
+    rarity = 4,
+    cost = 10,
+    pools = { ['Maniatromod'] = true },
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = false,
+    pos = { x = 0, y = 0 },
+    config = {
+        extra = {
+            emult = 2 
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = { center.ability.extra.emult }
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main and context.cardarea == G.jokers then
+            return {
+                e_mult = card.ability.extra.emult,
+                message = ". . .",
+                colour = G.C.MULT
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.emult = card.ability.extra.emult or 2
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- OCEAN
+SMODS.Atlas{
+    key = 'ocean',
+    path = 'ocean.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'ocean',
+    loc_txt = {
+        name = 'OCEAN',
+        text = {
+            '. . .'
+        }
+    },
+    atlas = 'ocean',
+    rarity = 4,
+    cost = 20,
+    pools = { ['Maniatromod'] = true },
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = { x = 0, y = 0 },
+    config = {
+        extra = {
+            echips = 2 
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = { center.ability.extra.echips }
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main and context.cardarea == G.jokers then
+            return {
+                e_chips = card.ability.extra.echips,
+                message = ". . .",
+                colour = G.C.CHIPS
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.echips = card.ability.extra.echips or 2
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Keep Rollin'
+SMODS.Atlas{
+    key = 'rollin',
+    path = 'rollin.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'rollin',
+    loc_txt = {
+        name = "Keep Rollin'",
+        text = {
+            'Cualquier carta de {C:spades}picas{} jugada',
+            'tiene un {C:green,E:1}25%{} de probabilidad de retriggearse.',
+            'Si acierta, lo vuelve a intentar en la misma carta.'
+        }
+    },
+    atlas = 'rollin',
+    rarity = 2,
+    cost = 7,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x=0, y=0},
+    config = {},
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = {} }
+    end,
+
+    calculate = function(self, card, context)
+        if context.repetition and context.cardarea == G.play and context.other_card then
+            if context.other_card:is_suit('Spades') then
+                local repetitions = 0
+                local continue_rolling = true
+                
+                while continue_rolling do
+                    if math.random() < 0.25 then 
+                        repetitions = repetitions + 1
+                    else
+                        continue_rolling = false
+                    end
+                end
+                
+                if repetitions > 0 then
+                    local message = 'Keep Rollin!'
+                    if repetitions > 1 then
+                        message = 'Keep Rollin! x' .. repetitions
+                    end
+                    
+                    return {
+                        message = message,
+                        repetitions = repetitions,
+                        card = context.other_card,
+                        colour = G.C.BLUE
+                    }
+                end
+            end
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Jolteon
+SMODS.Atlas{
+    key = 'jolteon',
+    path = 'jolteon.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'jolteon',
+    loc_txt = {
+        name = 'Jolteon',
+        text = {
+            'Las cartas jugadas con el palo de {C:diamonds}Diamantes{} tienen:',
+            '{C:green}25%{} de probabilidad de dar {C:blue}+1{} mano',
+            '{C:green}60%{} de probabilidad de {C:attention}copiarse{} a la mano',
+            '{C:green}60%{} de probabilidad de {C:red}destruirse{}'
+        }
+    },
+    atlas = 'jolteon',
+    rarity = 3,
+    cost = 6,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x = 0, y = 0},
+    soul_pos = { x = 0, y = 1 },
+    config = {
+        extra = {
+            odds_hand = 4,
+            odds_copy = 5,
+            odds_destroy = 5,
+            hands = 1
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { 
+            vars = {
+                center.ability.extra.odds_hand,
+                center.ability.extra.odds_copy,
+                center.ability.extra.odds_destroy
+            } 
+        }
+    end,
+
+    calculate = function(self, card, context)
+        -- Prevenir destrucción de cartas marcadas
+        if context.destroy_card and context.destroy_card.should_destroy then
+            return { remove = true }
+        end
+
+        -- Efectos al jugar carta individual
+        if context.individual and context.cardarea == G.play then
+            context.other_card.should_destroy = false
+            
+            if context.other_card:is_suit("Diamonds") then
+                -- Efecto 1: Ganar mano extra (1 en 4)
+                if pseudorandom('jolteon_hand') < G.GAME.probabilities.normal / card.ability.extra.odds_hand then
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                                message = "+" .. tostring(card.ability.extra.hands) .. " Mano",
+                                colour = G.C.BLUE
+                            })
+                            G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + card.ability.extra.hands
+                            return true
+                        end
+                    }))
+                end
+
+                -- Efecto 2: Copiar carta (3 en 5)
+                if pseudorandom('jolteon_copy') < (3 * G.GAME.probabilities.normal) / card.ability.extra.odds_copy then
+                    G.playing_card = (G.playing_card and G.playing_card + 1) or 1
+                    local copied_card = copy_card(context.other_card, nil, nil, G.playing_card)
+                    copied_card:add_to_deck()
+                    G.deck.config.card_limit = G.deck.config.card_limit + 1
+                    table.insert(G.playing_cards, copied_card)
+                    G.hand:emplace(copied_card)
+                    copied_card.states.visible = nil
+                    
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            copied_card:start_materialize()
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                                message = "¡Copiada!",
+                                colour = G.C.GREEN
+                            })
+                            return true
+                        end
+                    }))
+                end
+
+                -- Efecto 3: Destruir carta (3 en 5)
+                if pseudorandom('jolteon_destroy') < (3 * G.GAME.probabilities.normal) / card.ability.extra.odds_destroy then
+                    context.other_card.should_destroy = true
+                    card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                        message = "¡Destruida!",
+                        colour = G.C.RED
+                    })
+                end
+            end
+        end
+    end,
+}
+
+-- Loss
+SMODS.Atlas{
+    key = 'loss',
+    path = 'loss.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'loss',
+    loc_txt = {
+        name = 'Loss',
+        text = {
+            'Si la mano jugada es {C:attention}Loss{},',
+            'gana {X:mult,C:white}X3{} multi.'
+        }
+    },
+    atlas = 'loss',
+    rarity = 2,
+    cost = 5,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x=0, y=0},
+    config = {},
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = {} }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main and context.poker_hands and context.poker_hands['mania_pkr_perdida'] then
+            return {
+                message = 'Loss',
+                Xmult_mod = 3
+            }
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Obituary
+SMODS.Atlas{
+    key = 'obituary',
+    path = 'obituary.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'obituary',
+    loc_txt = {
+        name = 'Obituary',
+        text = {
+            'Cada {C:attention}As{} o {C:attention}2{} jugado dará {C:mult}+4{} multi.'
+        }
+    },
+    atlas = 'obituary',
+    rarity = 2,
+    cost = 6,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x=0, y=0},
+    config = {
+        extra = {
+            mult_per_card = 4,
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = {} }
+    end,
+
+    calculate = function(self, card, context)
+        -- Solo cuando se procesa la carta jugada en mesa
+        if context.individual 
+           and context.cardarea == G.play 
+           and context.other_card 
+           and not context.repetition then
+
+            local id = context.other_card:get_id()
+            if id == 14 or id == 2 then
+                return {
+                    mult = card.ability.extra.mult_per_card,
+                    message = "+" .. card.ability.extra.mult_per_card .. " Multi",
+                    colour = G.C.MULT
+                }
+            end
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Amongla 
+SMODS.Atlas{
+    key = 'amongla',
+    path = 'amongla.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'amongla',
+    loc_txt = {
+        name = 'Amongla',
+        text = {
+            '{X:mult,C:white}X#1#{} multi',
+            '{C:green,E:1}0.125%{} de probabilidad',
+            'de cerrar el juego.'
+        }
+    },
+    atlas = 'amongla',
+    rarity = 3,
+    cost = 8,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+    config = { extra = { xmult = 3 } },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.xmult } }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            -- Verificar el cierre del juego (1/8 de probabilidad)
+            if math.random(1, 8) == 1 then
+                -- Programar el cierre para después de mostrar el efecto
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.5,
+                    func = function()
+                        -- Mostrar mensaje de advertencia
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                            message = 'AMONGLA',
+                            colour = G.C.RED
+                        })
+                        
+                        -- Cerrar el juego después de un breve delay
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 1.0,
+                            func = function()
+                                -- Intentar cerrar el juego de manera limpia
+                                love.event.quit()
+                                return true
+                            end
+                        }))
+                        return true
+                    end
+                }))
+            end
+            
+            -- Aplicar el multiplicador x3
+            return {
+                message = "x" .. card.ability.extra.xmult,
+                Xmult_mod = card.ability.extra.xmult,
+                colour = G.C.RED
+            }
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Amongla desgastado
+SMODS.Atlas{
+    key = 'amongla_des',
+    path = 'amongla_des.png',  
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'amongla_des',
+    loc_txt = {
+        name = 'Amongla desgastado',
+        text = {
+            '{X:mult,C:white}X#1#{} multi',
+            '{C:green,E:1}25%{} de probabilidad',
+            'de cerrar el juego.'
+        }
+    },
+    atlas = 'amongla_des',
+    rarity = 4,
+    cost = 10,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+    config = { extra = { xmult = 6 } },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.xmult } }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            -- Verificar el cierre del juego (25% de probabilidad)
+            if math.random() < 0.25 then
+                -- Programar el cierre para después de mostrar el efecto
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.5,
+                    func = function()
+                        -- Mostrar mensaje de advertencia
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                            message = '¡GILIPOLLAS!',
+                            colour = G.C.RED
+                        })
+                        
+                        -- Cerrar el juego después de un breve delay
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 1.0,
+                            func = function()
+                                -- Intentar cerrar el juego de manera limpia
+                                love.event.quit()
+                                return true
+                            end
+                        }))
+                        return true
+                    end
+                }))
+            end
+            
+            -- Aplicar el multiplicador x6
+            return {
+                message = "x" .. card.ability.extra.xmult,
+                Xmult_mod = card.ability.extra.xmult,
+                colour = G.C.RED
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.xmult = card.ability.extra.xmult or 6
     end,
 
     check_for_unlock = function(self, args)
@@ -676,6 +1544,304 @@ SMODS.Joker{
     end,
 }
 
+-- Bima
+SMODS.Atlas{
+    key = 'bima',
+    path = 'bima.png',  
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'bima',
+    loc_txt = {
+        name = 'Bima',
+        text = {
+            'Si la mano jugada contiene',
+            '{C:attention}dos ases{}, gana {X:mult,C:white}+0.5X{} multi',
+            '{C:inactive}(Actual: {X:mult,C:white}X#1#{C:inactive})'
+        }
+    },
+    atlas = 'bima',
+    rarity = 3,
+    cost = 9,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+    config = {
+        extra = {
+            x_mult = 1.0
+        }
+    },
+    
+    loc_vars = function(self, info_queue, center)
+        return {
+            vars = {
+                center.ability.extra.x_mult
+            }
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            -- Contar ases en la mano jugada
+            local ace_count = 0
+            if G.play and G.play.cards then
+                for _, played_card in ipairs(G.play.cards) do
+                    if played_card:get_id() == 14 then -- As
+                        ace_count = ace_count + 1
+                    end
+                end
+            end
+            
+            -- Si hay dos ases o más, incrementar el multiplicador
+            if ace_count >= 2 then
+                card.ability.extra.x_mult = card.ability.extra.x_mult + 0.5
+                
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                            message = "¡" .. ace_count .. " Ases! +0.5X",
+                            colour = G.C.RED
+                        })
+                        return true
+                    end
+                }))
+            end
+            
+            -- Siempre aplicar el multiplicador actual si es mayor que 1
+            if card.ability.extra.x_mult > 1 then
+                return {
+                    x_mult = card.ability.extra.x_mult,
+                    message = "X" .. card.ability.extra.x_mult,
+                    colour = G.C.MULT
+                }
+            end
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Julio
+SMODS.Atlas{
+    key = 'julio',
+    path = 'julio.png',
+    px = 71,
+    py = 95
+}
+
+SMODS.Joker{
+    key = 'julio',
+    loc_txt = {
+        name = 'Julio',
+        text = {
+            '{C:spectral}+#1#{} multi',
+            'Cada {C:spectral}4 manos{} jugadas,',
+            '{X:dark_edition,C:white}^2{} multi',
+            '{C:inactive}Manos: {C:spectral}#2#/4'
+        }
+    },
+    atlas = 'julio',
+    rarity = 4,
+    cost = 20,
+    pools = {},  
+    unlocked = true,  
+    discovered = true,  
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+    config = { 
+        extra = { 
+            base_mult = 2.4,
+            hands_played = 0,
+            squaring_cycles = 0
+        } 
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { 
+            vars = { 
+                center.ability.extra.base_mult, 
+                center.ability.extra.hands_played,
+                "N/A"  -- Ya no usamos squaring_cycles de la misma manera
+            } 
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            card.ability.extra.hands_played = card.ability.extra.hands_played + 1
+            
+            -- Calcular multiplicador actual
+            local current_mult = card.ability.extra.base_mult ^ (card.ability.extra.squaring_cycles + 1)
+            
+            -- Elevar al cuadrado cada 4 manos
+            if card.ability.extra.hands_played >= 4 then
+                card.ability.extra.hands_played = 0
+                
+                -- CRÍTICO: Elevar el multiplicador ACTUAL al cuadrado
+                local old_mult = current_mult
+                current_mult = current_mult * current_mult  -- current_mult^2
+                
+                -- Actualizar el sistema para mantener el nuevo valor
+                -- Guardamos el nuevo multiplicador como base para futuros cálculos
+                card.ability.extra.base_mult = current_mult
+                card.ability.extra.squaring_cycles = 0  -- Resetear ya que ahora base_mult es el nuevo valor
+                
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                            message = "¡Al cuadrado! " .. old_mult .. "² = +" .. current_mult,
+                            colour = G.C.RED
+                        })
+                        return true
+                    end
+                }))
+            end
+            
+            return {
+                mult_mod = current_mult,
+                message = "+" .. current_mult .. " Multi",
+                colour = G.C.MULT
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.base_mult = card.ability.extra.base_mult or 24
+        card.ability.extra.hands_played = card.ability.extra.hands_played or 0
+        card.ability.extra.squaring_cycles = card.ability.extra.squaring_cycles or 0
+        
+        -- Marcar como descubierto cuando se obtiene
+        if initial then
+            self.discovered = true
+        end
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+        -- Marcar como descubierto al añadirlo al mazo
+        self.discovered = true
+    end,
+
+    -- Función especial para que no aparezca en tiendas ni paquetes
+    can_use = function(self, card)
+        return true  -- Se puede usar una vez obtenido
+    end,
+
+    -- Evitar que aparezca en generación aleatoria
+    get_weight = function(self)
+        return 0  -- Peso 0 = nunca aparece aleatoriamente
+    end,
+
+    check_for_unlock = function(self, args)
+        -- Julio no se desbloquea normalmente, solo por transformación
+        return false
+    end,
+}
+
+-- Caja vacía
+SMODS.Atlas{
+    key = 'box',
+    path = 'box.png',
+    px = 71,
+    py = 95
+}
+
+SMODS.Joker{
+    key = 'box',
+    loc_txt = {
+        name = 'Caja vacía',
+        text = {
+            '. . .',
+            '{C:spectral}#1#/4',
+        }
+    },
+    atlas = 'box',
+    rarity = 3,
+    cost = 10,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+    config = { 
+        extra = { 
+            hands_played = 0
+        } 
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.hands_played } }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            card.ability.extra.hands_played = card.ability.extra.hands_played + 1
+            
+            -- Transformar tras 4 manos
+            if card.ability.extra.hands_played >= 4 then
+                -- Crear Julio y destruir la caja
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.3,
+                    func = function()
+                        -- Crear Julio en la misma posición
+                        local julio = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_mania_julio')
+                        julio:add_to_deck()
+                        G.jokers:emplace(julio)
+                        
+                        -- Mensaje de transformación
+                        card_eval_status_text(julio, 'extra', nil, nil, nil, {
+                            message = "¡Julio ha despertado!",
+                            colour = G.C.PURPLE
+                        })
+                        
+                        -- Remover la caja
+                        G.jokers:remove_card(card)
+                        card:remove()
+                        
+                        return true
+                    end
+                }))
+                
+                return {
+                    message = "¡Transformando!",
+                    colour = G.C.PURPLE
+                }
+            else
+                return {
+                    message = card.ability.extra.hands_played .. "/4 manos",
+                    colour = G.C.UI.TEXT_LIGHT
+                }
+            end
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.hands_played = card.ability.extra.hands_played or 0
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
 -- Nauiyo
 SMODS.Atlas{
     key = 'nauiyo',
@@ -864,233 +2030,6 @@ SMODS.Joker{
         card.ability.extra.consecutive_count = card.ability.extra.consecutive_count or 0
         card.ability.extra.base_mult = card.ability.extra.base_mult or 2.5
         card.ability.extra.increment = card.ability.extra.increment or 0.5
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Amongla 
-SMODS.Atlas{
-    key = 'amongla',
-    path = 'amongla.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'amongla',
-    loc_txt = {
-        name = 'Amongla',
-        text = {
-            '{X:mult,C:white}X#1#{} multi',
-            '{C:green,E:1}0.125%{} de probabilidad',
-            'de cerrar el juego.'
-        }
-    },
-    atlas = 'amongla',
-    rarity = 3,
-    cost = 8,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = false,
-    perishable_compat = false,
-    pos = {x = 0, y = 0},
-    config = { extra = { xmult = 3 } },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = { center.ability.extra.xmult } }
-    end,
-
-    calculate = function(self, card, context)
-        if context.joker_main then
-            -- Verificar el cierre del juego (1/8 de probabilidad)
-            if math.random(1, 8) == 1 then
-                -- Programar el cierre para después de mostrar el efecto
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.5,
-                    func = function()
-                        -- Mostrar mensaje de advertencia
-                        card_eval_status_text(card, 'extra', nil, nil, nil, {
-                            message = 'AMONGLA',
-                            colour = G.C.RED
-                        })
-                        
-                        -- Cerrar el juego después de un breve delay
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            delay = 1.0,
-                            func = function()
-                                -- Intentar cerrar el juego de manera limpia
-                                love.event.quit()
-                                return true
-                            end
-                        }))
-                        return true
-                    end
-                }))
-            end
-            
-            -- Aplicar el multiplicador x3
-            return {
-                message = "x" .. card.ability.extra.xmult,
-                Xmult_mod = card.ability.extra.xmult,
-                colour = G.C.RED
-            }
-        end
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- FATAL
-SMODS.Atlas{
-    key = 'fatal',
-    path = 'fatal.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'fatal',
-    loc_txt = {
-        name = 'FATAL',
-        text = {
-            '. . .'
-        }
-    },
-    atlas = 'fatal',
-    rarity = 4,
-    cost = 10,
-    pools = { ['Maniatromod'] = true },
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = false,
-    eternal_compat = true,
-    perishable_compat = false,
-    pos = { x = 0, y = 0 },
-    config = {
-        extra = {
-            emult = 2 
-        }
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return {
-            vars = { center.ability.extra.emult }
-        }
-    end,
-
-    calculate = function(self, card, context)
-        if context.joker_main and context.cardarea == G.jokers then
-            return {
-                e_mult = card.ability.extra.emult,
-                message = ". . .",
-                colour = G.C.MULT
-            }
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.emult = card.ability.extra.emult or 2
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Proto
-SMODS.Atlas{
-    key = 'proto',
-    path = 'proto.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'proto',
-    loc_txt = {
-        name = 'Proto',
-        text = {
-            'Por cada ronda, copia la habilidad',
-            'de un {C:attention}Joker aleatorio{}.',
-            'Copiando: {C:attention}#1#{}'
-        }
-    },
-    atlas = 'proto',
-    rarity = 4,
-    cost = 15,
-    pools = { ['Maniatromod'] = true },
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = false,
-    eternal_compat = true,
-    perishable_compat = false,
-    pos = { x = 0, y = 0 },
-    config = {
-        extra = {
-            target_joker = nil,
-            current_round = 0
-        }
-    },
-
-    loc_vars = function(self, info_queue, center)
-        local target_name = "Ninguno"
-        if center.ability.extra.target_joker
-        and center.ability.extra.target_joker.config
-        and center.ability.extra.target_joker.config.center then
-            -- Usar nombre localizado si existe
-            local name_data = center.ability.extra.target_joker.config.center.loc_txt
-            if name_data and name_data.name then
-                target_name = name_data.name
-            else
-                target_name = center.ability.extra.target_joker.config.center.name or "Desconocido"
-            end
-        end
-        return { vars = { target_name } }
-    end,
-
-    calculate = function(self, card, context)
-        -- Elegir un Joker aleatorio al inicio de la ronda
-        if context.setting_blind and not context.blueprint then
-            local available_jokers = {}
-            for _, joker in ipairs(G.jokers.cards) do
-                if joker ~= card and joker.config and joker.config.center then
-                    table.insert(available_jokers, joker)
-                end
-            end
-            if #available_jokers > 0 then
-                card.ability.extra.target_joker = available_jokers[math.random(#available_jokers)]
-            else
-                card.ability.extra.target_joker = nil
-            end
-            return
-        end
-
-        -- Aplicar el efecto del Joker copiado
-        if card.ability.extra.target_joker then
-            return SMODS.blueprint_effect(card, card.ability.extra.target_joker, context)
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.target_joker = card.ability.extra.target_joker or nil
-        card.ability.extra.current_round = card.ability.extra.current_round or (G.GAME and G.GAME.round or 0)
-    end,
-
-    load = function(self, card, card_table)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.target_joker = nil
-        card.ability.extra.current_round = card_table.ability.extra and card_table.ability.extra.current_round or (G.GAME and G.GAME.round or 0)
     end,
 
     check_for_unlock = function(self, args)
@@ -1509,136 +2448,283 @@ SMODS.Joker{
     end,
 }
 
--- Parabettle
+-- Galileo
 SMODS.Atlas{
-    key = 'parabettle',
-    path = 'parabettle.png',
+    key = 'galileo',
+    path = 'galileo.png',
     px = 71,
     py = 95,
 }
 
 SMODS.Joker{
-    key = 'parabettle',
+    key = 'galileo',
     loc_txt = {
-        name = 'Parabettle',
+        name = 'Galileo',
         text = {
-            'Por cada {C:attention}#2#{} descartes,',
-            'gana {C:chips}+25{} fichas permanentes.',
-            '{C:inactive}Actual: {C:chips}+#1#{C:inactive} chips',
+            'Cuando usas una {C:planet}carta planetaria{}, hay un {C:green,E:1}50%{} de ',
+            'probabilidad de que este Joker gane {X:mult,C:white}+0.5X{} multi.',
+            'Solo aplica el multiplicador si la mano jugada es un {C:attention}color{}.',
+            '{C:inactive}Actual: {X:mult,C:white}X#1#'
         }
     },
-    atlas = 'parabettle', 
-    rarity = 2,
-    cost = 5,
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = false,
-    eternal_compat = true,
-    config = { extra = { chips = 0, count = 0 } },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = { center.ability.extra.chips, 10 - center.ability.extra.count } }
-    end,
-
-    calculate = function(self, card, context)
-        -- Contar descartes
-        if context.discard then
-            card.ability.extra.count = card.ability.extra.count + 1
-            
-            -- Cada 10 descartes, añadir fichas permanentes
-            if card.ability.extra.count >= 10 then
-                card.ability.extra.chips = card.ability.extra.chips + 25
-                card.ability.extra.count = 0
-                
-                -- Efecto visual
-                card_eval_status_text(card, 'extra', nil, nil, nil, {
-                    message = "+25 fichas!",
-                    colour = G.C.CHIPS,
-                    chip_mod = 25
-                })
-            end
-            
-            -- Actualizar contador visual
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.1,
-                func = function()
-                    card_eval_status_text(card, 'extra', nil, nil, nil, {
-                        message = "Descarte "..card.ability.extra.count.."/10",
-                        colour = G.C.UI.TEXT_LIGHT
-                    })
-                    return true
-                end
-            }))
-        end
-
-        -- Aplicar bonificación de fichas en cada mano
-        if context.joker_main then
-            return {
-                chip_mod = card.ability.extra.chips,
-                message = localize{type = 'variable', key = 'a_chips', vars = {card.ability.extra.chips}},
-                colour = G.C.CHIPS
-            }
-        end
-    end,
-
-    -- Resetear al venderse
-    remove_from_deck = function(self, card)
-        card.ability.extra.chips = 0
-        card.ability.extra.count = 0
-    end
-}
-
--- Joker Tributario
-SMODS.Atlas{
-    key = 'tributario',
-    path = 'tributario.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'tributario',
-    loc_txt = {
-        name = 'Comodín tributario',
-        text = {
-            'Si tienes menos de {C:money}20${}, este joker',
-            'te dará {C:money}+3${} por cada mano jugada.',
-            'Si tienes más, no surgirá efecto.'
-        }
-    },
-    atlas = 'tributario',
-    rarity = 2,
-    cost = 6,
+    atlas = 'galileo',
+    rarity = 3,
+    cost = 8,
     pools = {['Maniatromod'] = true},
     unlocked = true,
     discovered = true,
     blueprint_compat = true,
     eternal_compat = false,
     perishable_compat = false,
-    pos = {x = 0, y = 0}, 
-    config = { extra = { money_threshold = 20, money_gain = 3 } },
+    pos = {x = 0, y = 0},
+    config = { extra = { x_mult = 1.0, gain = 0.5 } },
 
     loc_vars = function(self, info_queue, center)
-        return { vars = {} }
+        return {
+            vars = { string.format("%.1f", center.ability.extra.x_mult) }
+        }
     end,
 
     calculate = function(self, card, context)
-        if context.joker_main then
-            -- Verificar si el jugador tiene menos de $20
-            local current_money = G.GAME.dollars or 0
-            
-            if current_money < card.ability.extra.money_threshold then
+        -- Al usar una carta planetaria
+        if context.using_consumeable and context.consumeable then
+            if context.consumeable.ability.set == 'Planet' then
+                if pseudorandom('galileo') < 0.5 then
+                    card.ability.extra.x_mult = card.ability.extra.x_mult + card.ability.extra.gain
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            card:juice_up(0.3, 0.5)
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {
+                                message = localize{type='variable', key='a_xmult', vars={card.ability.extra.gain}},
+                                colour = G.C.RED
+                            })
+                            return true
+                        end
+                    }))
+                end
+            end
+        end
+
+        -- Aplicar multiplicador solo si la mano es Flush (color)
+        if context.joker_main and context.scoring_name == "Flush" then
+            return {
+                x_mult = card.ability.extra.x_mult,
+                message = localize{type='variable', key='a_xmult', vars={card.ability.extra.x_mult}},
+                colour = G.C.MULT
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.x_mult = card.ability.extra.x_mult or 1.0
+        card.ability.extra.gain = card.ability.extra.gain or 0.5
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card_table.ability.extra or { x_mult = 1.0, gain = 0.5 }
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Pompo
+SMODS.Atlas{
+    key = 'pompo',
+    path = 'pompo.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'pompo',
+    loc_txt = {
+        name = 'Pompo',
+        text = {
+            'Por cada {C:purple}#3# consumibles{} usados, gana {C:green}+1!{} multi',
+            'Actual: {C:green}#1#!{} = {C:red}+#2#{} multi'
+        }
+    },
+    atlas = 'pompo',
+    rarity = 3,
+    cost = 9,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x=0, y=0},
+
+    config = {
+        extra = {
+            consumables_used = 0,
+            factorial_level = 1, -- empieza en 1! 
+            actual_multiplier = 1 -- el valor real del factorial
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        local remaining = 5 - (center.ability.extra.consumables_used % 5)
+        if remaining == 5 then remaining = 0 end -- Si está en un múltiplo exacto de 5
+        
+        return { 
+            vars = { 
+                center.ability.extra.factorial_level, 
+                center.ability.extra.actual_multiplier,
+                remaining == 0 and 5 or remaining
+            } 
+        }
+    end,
+
+    calculate = function(self, card, context)
+        -- Cuando se usa un consumible
+        if context.consumeable then
+            card.ability.extra.consumables_used = card.ability.extra.consumables_used + 1
+
+            -- Cada 5 consumibles, aumenta el factorial en +1
+            if card.ability.extra.consumables_used % 5 == 0 then
+                card.ability.extra.factorial_level = card.ability.extra.factorial_level + 1
+                
+                -- Calcular el factorial (ahora siempre entero)
+                local function factorial(n)
+                    if n <= 1 then return 1 end
+                    local result = 1
+                    for i = 1, n do
+                        result = result * i
+                    end
+                    return result
+                end
+                
+                card.ability.extra.actual_multiplier = factorial(card.ability.extra.factorial_level)
+
                 return {
-                    message = '+$' .. card.ability.extra.money_gain,
-                    dollars = card.ability.extra.money_gain,
-                    colour = G.C.MONEY
+                    message = "+1! (" .. card.ability.extra.factorial_level .. "! = +" .. card.ability.extra.actual_multiplier .. " multi)",
+                    colour = G.C.GREEN
+                }
+            end
+        end
+
+        -- Aplicar el multiplicador acumulado en todas las manos
+        if context.joker_main and card.ability.extra.actual_multiplier > 1 then
+            return {
+                message = "+" .. card.ability.extra.actual_multiplier .. " (" .. card.ability.extra.factorial_level .. "!)",
+                mult_mod = card.ability.extra.actual_multiplier,
+                colour = G.C.RED
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.consumables_used = card.ability.extra.consumables_used or 0
+        card.ability.extra.factorial_level = card.ability.extra.factorial_level or 1
+        card.ability.extra.actual_multiplier = card.ability.extra.actual_multiplier or 1
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.consumables_used = card_table.ability.extra and card_table.ability.extra.consumables_used or 0
+        card.ability.extra.factorial_level = card_table.ability.extra and card_table.ability.extra.factorial_level or 1
+        card.ability.extra.actual_multiplier = card_table.ability.extra and card_table.ability.extra.actual_multiplier or 1
+        
+        -- Recalcular el multiplicador al cargar
+        if card.ability.extra.factorial_level > 1 then
+            local function factorial(n)
+                if n <= 1 then return 1 end
+                local result = 1
+                for i = 1, n do
+                    result = result * i
+                end
+                return result
+            end
+            card.ability.extra.actual_multiplier = factorial(card.ability.extra.factorial_level)
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Blue
+SMODS.Atlas{
+    key = 'blue',
+    path = 'blue.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'blue',
+    loc_txt = {
+        name = 'Blue',
+        text = {
+            'Sin {C:attention}Luna{}: {C:red}+#1#{} multi por espacio',
+            'de consumible vacío.',
+            'Con {C:attention}Luna{}: {X:blue,C:white}X#2#{} fichas'
+        }
+    },
+    atlas = 'blue',
+    rarity = 2,
+    cost = 5,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x=0, y=0},
+
+    config = {
+        extra = {
+            base_mult = 10,
+            empty_slot_mult = 10,
+            synergy_xchips = 1.75
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        local empty_slots = (G.consumeables and G.consumeables.config.card_limit or 2) - #(G.consumeables and G.consumeables.cards or {})
+        local mult_per_slot = center.ability.extra.empty_slot_mult
+        
+        return { 
+            vars = { 
+                mult_per_slot,
+                center.ability.extra.synergy_xchips
+            } 
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main then
+            -- Verificar si Luna está presente
+            local has_luna = false
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i].config.center.key == "j_mania_luna" then
+                    has_luna = true
+                    break
+                end
+            end
+
+            if has_luna then
+                -- Efecto de sinergia: X fichas
+                return {
+                    message = "X" .. card.ability.extra.synergy_xchips .. " fichas (con Luna)",
+                    Xchip_mod = card.ability.extra.synergy_xchips,
+                    colour = G.C.BLUE
                 }
             else
-                -- Opcional: mostrar mensaje cuando no hay efecto
+                -- Efecto base: +mult por espacios vacíos
+                local empty_slots = (G.consumeables and G.consumeables.config.card_limit or 2) - #(G.consumeables and G.consumeables.cards or {})
+                local total_mult = empty_slots * card.ability.extra.empty_slot_mult
+                
                 return {
-                    message = 'Sin efecto ($' .. current_money .. ')',
-                    colour = G.C.UI.TEXT_INACTIVE
+                    message = "+" .. total_mult .. " multi (" .. empty_slots .. " espacios)",
+                    mult_mod = total_mult,
+                    colour = G.C.RED
                 }
             end
         end
@@ -1646,8 +2732,282 @@ SMODS.Joker{
 
     set_ability = function(self, card, initial, delay_sprites)
         card.ability.extra = card.ability.extra or {}
-        card.ability.extra.money_threshold = card.ability.extra.money_threshold or 20
-        card.ability.extra.money_gain = card.ability.extra.money_gain or 3
+        card.ability.extra.base_mult = card.ability.extra.base_mult or 10
+        card.ability.extra.empty_slot_mult = card.ability.extra.empty_slot_mult or 10
+        card.ability.extra.synergy_xchips = card.ability.extra.synergy_xchips or 1.75
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.base_mult = card_table.ability.extra and card_table.ability.extra.base_mult or 10
+        card.ability.extra.empty_slot_mult = card_table.ability.extra and card_table.ability.extra.empty_slot_mult or 10
+        card.ability.extra.synergy_xchips = card_table.ability.extra and card_table.ability.extra.synergy_xchips or 1.75
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Luna
+SMODS.Atlas{
+    key = 'luna',
+    path = 'luna.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'luna',
+    loc_txt = {
+        name = 'Luna',
+        text = {
+            'Sin {C:attention}Blue{}: {C:blue}+50{} fichas por',
+            'consumible que tengas.',
+            'Con {C:attention}Blue{}: {X:red,C:white}X#2#{} multi'
+        }
+    },
+    atlas = 'luna',
+    rarity = 2,
+    cost = 5,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x=0, y=0},
+
+    config = {
+        extra = {
+            base_chips = 50,
+            consumable_chips = 50,
+            synergy_xmult = 1.75
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        local consumables_count = #(G.consumeables and G.consumeables.cards or {})
+        local total_chips = consumables_count * center.ability.extra.consumable_chips
+        
+        return { 
+            vars = { 
+                total_chips,
+                center.ability.extra.synergy_xmult
+            } 
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main then
+            -- Verificar si Blue está presente
+            local has_blue = false
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i].config.center.key == "j_mania_blue" then
+                    has_blue = true
+                    break
+                end
+            end
+
+            if has_blue then
+                -- Efecto de sinergia: X mult
+                return {
+                    message = "X" .. card.ability.extra.synergy_xmult .. " multi (con Blue)",
+                    Xmult_mod = card.ability.extra.synergy_xmult,
+                    colour = G.C.RED
+                }
+            else
+                -- Efecto base: +fichas por consumibles
+                local consumables_count = #(G.consumeables and G.consumeables.cards or {})
+                local total_chips = consumables_count * card.ability.extra.consumable_chips
+                
+                return {
+                    message = "+" .. total_chips .. " fichas (" .. consumables_count .. " consumibles)",
+                    chip_mod = total_chips,
+                    colour = G.C.BLUE
+                }
+            end
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.base_chips = card.ability.extra.base_chips or 50
+        card.ability.extra.consumable_chips = card.ability.extra.consumable_chips or 50
+        card.ability.extra.synergy_xmult = card.ability.extra.synergy_xmult or 1.75
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.base_chips = card_table.ability.extra and card_table.ability.extra.base_chips or 50
+        card.ability.extra.consumable_chips = card_table.ability.extra and card_table.ability.extra.consumable_chips or 50
+        card.ability.extra.synergy_xmult = card_table.ability.extra and card_table.ability.extra.synergy_xmult or 1.75
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Tortuga
+SMODS.Atlas{
+    key = 'tortuga',
+    path = 'tortuga.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'tortuga',
+    loc_txt = {
+        name = 'Tortuga',
+        text = {
+            '{C:inactive}No hace nada.{}'
+        }
+    },
+    atlas = 'tortuga',
+    rarity = 3,
+    cost = 10,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+    config = {},
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = {} }
+    end,
+
+    calculate = function(self, card, context)
+        return -- no hace nada en partida
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+        G.GAME.tortuga_active = true
+    end,
+
+    remove_from_deck = function(self, card, from_debuff)
+        G.GAME.tortuga_active = false
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Hook para espectrales con probabilidad aumentada de The Soul
+if not G.OLD_CREATE_CARD then
+    G.OLD_CREATE_CARD = create_card
+    function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+        if _type == 'Spectral' and G.GAME and G.GAME.tortuga_active and not forced_key then
+            -- hacemos que The Soul tenga el doble de peso
+            local roll = pseudorandom('tortuga_soul')
+            if roll < 0.5 then
+                forced_key = 'c_soul'
+            end
+        end
+        return G.OLD_CREATE_CARD(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    end
+end
+
+-- Gafas de Spamton
+SMODS.Atlas{
+    key = 'spamton',
+    path = 'spamton.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'spamton',
+    loc_txt = {
+        name = 'Gafas de Spamton',
+        text = {
+            'Gana {X:mult,C:white}+1X{} multi por cada Joker',
+            'vendido durante una ronda.',
+            'Actual: {X:mult,C:white}X#1#{} multi'
+        }
+    },
+    atlas = 'spamton',
+    rarity = 3,
+    cost = 8,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    pos = {x=0, y=0},
+    config = { 
+        extra = { 
+            xmult = 1,
+            jokers_sold_this_round = 0,
+            processed_round_end = false
+        } 
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { string.format("%.1f", center.ability.extra.xmult) } }
+    end,
+
+    calculate = function(self, card, context)
+        -- Reiniciar al inicio de cada ronda
+        if context.setting_blind and not context.blueprint then
+            card.ability.extra.xmult = 1
+            card.ability.extra.jokers_sold_this_round = 0
+            card.ability.extra.processed_round_end = false
+            return
+        end
+
+        -- Detectar cuando se vende un Joker
+        if context.selling_card and context.card and context.card.ability and context.card.ability.set == "Joker" then
+            card.ability.extra.jokers_sold_this_round = card.ability.extra.jokers_sold_this_round + 1
+            card.ability.extra.xmult = 1 + card.ability.extra.jokers_sold_this_round
+            
+            -- Efecto visual cuando se vende
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.1,
+                func = function()
+                    card_eval_status_text(card, 'extra', nil, nil, nil, {
+                        message = "+1X Multi (X" .. string.format("%.1f", card.ability.extra.xmult) .. " total)",
+                        colour = G.C.MULT
+                    })
+                    return true
+                end
+            }))
+            
+            return {
+                message = "¡Joker vendido!",
+                colour = G.C.MONEY
+            }
+        end
+
+        -- Aplicar el multiplicador en la mano jugada
+        if context.joker_main and card.ability.extra.xmult > 1 then
+            return {
+                Xmult_mod = card.ability.extra.xmult,
+                message = "X" .. string.format("%.1f", card.ability.extra.xmult),
+                colour = G.C.MULT
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.xmult = card.ability.extra.xmult or 1
+        card.ability.extra.jokers_sold_this_round = card.ability.extra.jokers_sold_this_round or 0
+        card.ability.extra.processed_round_end = card.ability.extra.processed_round_end or false
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.xmult = card_table.ability.extra and card_table.ability.extra.xmult or 1
+        card.ability.extra.jokers_sold_this_round = card_table.ability.extra and card_table.ability.extra.jokers_sold_this_round or 0
+        card.ability.extra.processed_round_end = false 
     end,
 
     check_for_unlock = function(self, args)
@@ -1822,12 +3182,115 @@ SMODS.Joker{
     end,
 }
 
+-- Determinación
+SMODS.Atlas{
+    key = 'determination',
+    path = 'determination.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'determination',
+    loc_txt = {
+        name = 'Determinación',
+        text = {
+            'Este Joker aplica {X:mult,C:white}X#1#{} multi.',
+            'Cuantas más manos juegues, más fuerte se vuelve.',
+            '{C:inactive}Manos: {C:attention}#2#/#3#{}  |||  Nivel: {C:attention}#4#{}'
+        }
+    },
+    atlas = 'determination',
+    rarity = 4,
+    cost = 12,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+    config = {
+        extra = {
+            level = 1,
+            max_level = 20,
+            hands_played = 0,
+            hands_needed = 3,
+            current_mult = 5
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = {
+            center.ability.extra.current_mult,
+            center.ability.extra.hands_played,
+            center.ability.extra.hands_needed,
+            center.ability.extra.level
+        } }
+    end,
+
+    calculate = function(self, card, context)
+        -- Contar manos y subir de nivel
+        if context.joker_main and not context.blueprint then
+            card.ability.extra.hands_played = card.ability.extra.hands_played + 1
+
+            if card.ability.extra.hands_played >= card.ability.extra.hands_needed 
+            and card.ability.extra.level < card.ability.extra.max_level then
+
+                card.ability.extra.level = card.ability.extra.level + 1
+                card.ability.extra.current_mult = card.ability.extra.current_mult + 1
+                card.ability.extra.hands_played = 0
+                card.ability.extra.hands_needed = card.ability.extra.hands_needed + 1
+
+                -- Efecto visual al subir de nivel
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.5,
+                    func = function()
+                        card_eval_status_text(card, 'extra', nil, nil, nil, {
+                            message = "¡NIVEL " .. card.ability.extra.level .. "!",
+                            colour = G.C.RED
+                        })
+                        card:juice_up(0.3, 0.5)
+                        return true
+                    end
+                }))
+            end
+
+            -- Aplicar solo a sí mismo
+            return {
+                Xmult_mod = card.ability.extra.current_mult,
+                message = "X" .. card.ability.extra.current_mult,
+                colour = G.C.RED
+            }
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.level = card.ability.extra.level or 1
+        card.ability.extra.max_level = card.ability.extra.max_level or 20
+        card.ability.extra.hands_played = card.ability.extra.hands_played or 0
+        card.ability.extra.hands_needed = card.ability.extra.hands_needed or 3
+        card.ability.extra.current_mult = card.ability.extra.current_mult or 5
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
 -- Weezer
 SMODS.Atlas{
     key = 'weezer',
     path = 'weezer.png',
     px = 71,
     py = 95,
+}
+
+SMODS.Sound{
+    key = 'weezer_sound',
+    path = 'weezer.ogg',
 }
 
 SMODS.Joker{
@@ -1931,6 +3394,9 @@ SMODS.Joker{
                         new_weezer.ability.extra.rounds_completed = 0
                         new_weezer.ability.extra.processed_round_end = false
                         
+                        -- Reproducir sonido al duplicarse
+                        play_sound('mania_weezer_sound', 1.0, 1.0)
+                        
                         -- Mensaje de duplicación
                         card_eval_status_text(card, 'extra', nil, nil, nil, {
                             message = "¡Weezer se duplica!",
@@ -1995,7 +3461,6 @@ SMODS.Joker{
         unlock_card(self)
     end,
 }
-
 
 -- PRIDE 
 SMODS.Atlas{
@@ -2069,6 +3534,600 @@ SMODS.Joker{
         card.ability.extra = card.ability.extra or {}
         card.ability.extra.mult_per_polychrome = card.ability.extra.mult_per_polychrome or 69
         card.ability.extra.total_mult = card.ability.extra.total_mult or 0
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Parabettle
+SMODS.Atlas{
+    key = 'parabettle',
+    path = 'parabettle.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'parabettle',
+    loc_txt = {
+        name = 'Parabettle',
+        text = {
+            'Por cada {C:attention}#2#{} descartes,',
+            'gana {C:chips}+25{} fichas permanentes.',
+            '{C:inactive}Actual: {C:chips}+#1#{C:inactive} chips',
+        }
+    },
+    atlas = 'parabettle', 
+    rarity = 2,
+    cost = 5,
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = false,
+    eternal_compat = true,
+    config = { extra = { chips = 0, count = 0 } },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.chips, 10 - center.ability.extra.count } }
+    end,
+
+    calculate = function(self, card, context)
+        -- Contar descartes
+        if context.discard then
+            card.ability.extra.count = card.ability.extra.count + 1
+            
+            -- Cada 10 descartes, añadir fichas permanentes
+            if card.ability.extra.count >= 10 then
+                card.ability.extra.chips = card.ability.extra.chips + 25
+                card.ability.extra.count = 0
+                
+                -- Efecto visual
+                card_eval_status_text(card, 'extra', nil, nil, nil, {
+                    message = "+25 fichas!",
+                    colour = G.C.CHIPS,
+                    chip_mod = 25
+                })
+            end
+            
+            -- Actualizar contador visual
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.1,
+                func = function()
+                    card_eval_status_text(card, 'extra', nil, nil, nil, {
+                        message = "Descarte "..card.ability.extra.count.."/10",
+                        colour = G.C.UI.TEXT_LIGHT
+                    })
+                    return true
+                end
+            }))
+        end
+
+        -- Aplicar bonificación de fichas en cada mano
+        if context.joker_main then
+            return {
+                chip_mod = card.ability.extra.chips,
+                message = localize{type = 'variable', key = 'a_chips', vars = {card.ability.extra.chips}},
+                colour = G.C.CHIPS
+            }
+        end
+    end,
+
+    -- Resetear al venderse
+    remove_from_deck = function(self, card)
+        card.ability.extra.chips = 0
+        card.ability.extra.count = 0
+    end
+}
+
+-- Ludopatía (Animación)
+SMODS.Atlas{
+    key = "LudopatiaAtlas",
+    px = 71,
+    py = 95,
+    path = "ludopatia.png",
+    atlas_table = "ANIMATION_ATLAS",
+    frames = 8
+}:register()
+local _old_set_sprites = Card.set_sprites
+function Card:set_sprites(_center, _front)
+    if _center and _center.key == "j_mania_ludopatia" then
+        self.children.center = AnimatedSprite(
+            self.T.x, self.T.y, self.T.w, self.T.h,
+            G.ANIMATION_ATLAS["mania_LudopatiaAtlas"],
+            self.config.center.pos
+        )
+        self.children.center.framerate_override = 12
+        self.children.center:set_role({
+            major = self,
+            role_type = "Glued",
+            draw_major = self
+        })
+
+        local back_atlas = nil
+        if G.P_CENTERS and G.P_CENTERS.j_joker then
+            back_atlas = G.P_CENTERS.j_joker.atlas or G.ASSET_ATLAS["Joker"]
+        elseif _front and _front.atlas then
+            back_atlas = _front.atlas
+        else
+            back_atlas = G.ASSET_ATLAS["Joker"]
+        end
+
+        self.children.back = Sprite(
+            self.T.x, self.T.y, self.T.w, self.T.h,
+            back_atlas,
+            self.config.center.pos
+        )
+        return
+    end
+    _old_set_sprites(self, _center, _front)
+end
+if AnimatedSprite and not AnimatedSprite._has_ludopatia_patch then
+    AnimatedSprite._has_ludopatia_patch = true
+    local _old_animate = AnimatedSprite.animate
+
+    function AnimatedSprite:animate()
+        if self.framerate_override then
+            local FPS = self.framerate_override
+            local new_frame = math.floor(FPS * (G.TIMERS.REAL - self.offset_seconds)) % self.current_animation.frames
+            local frame_length = math.floor(self.image_dims[1] / self.animation.w)
+
+            if new_frame ~= self.current_animation.current then
+                self.current_animation.current = new_frame % frame_length
+                self.frame_offset = math.floor(self.animation.w * self.current_animation.current)
+                self.sprite:setViewport(
+                    self.frame_offset,
+                    self.animation.h * self.animation.y,
+                    self.animation.w,
+                    self.animation.h
+                )
+            end
+        else
+            _old_animate(self)
+        end
+    end
+end
+
+-- Ludopatía
+SMODS.Joker{
+    key = 'ludopatia',
+    loc_txt = {
+        name = 'Ludopatía',
+        text = {
+            'Al final de cada mano,',
+            'gana {C:chips}+15{} chips y {C:mult}+5{} multi por cada',
+            '{C:attention}Símbolo{} que poseas.',
+            '{C:inactive}(Símbolos: #1#)',
+            '{C:mult}+#2#{} Multi | {C:chips}+#3#{} Chips'
+        }
+    },
+    rarity = 3,
+    cost = 8,
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x = 0, y = 0},
+    atlas = 'LudopatiaAtlas',
+    animated = true,
+    config = { 
+        extra = { 
+            mult = 0,
+            chips = 0,
+            symbol_count = 0,
+            mult_per_symbol = 5,
+            chips_per_symbol = 15,
+        } 
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { 
+            vars = { 
+                center.ability.extra.symbol_count,
+                center.ability.extra.mult,
+                center.ability.extra.chips
+            } 
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.before and not context.blueprint then
+            local symbol_count = 0
+
+            if G.consumeables and G.consumeables.cards then
+                for _, consumable in ipairs(G.consumeables.cards) do
+                    if consumable.ability and consumable.ability.set == 'simbolos' then
+                        symbol_count = symbol_count + 1
+                    end
+                end
+            end
+
+            card.ability.extra.symbol_count = symbol_count
+            card.ability.extra.mult = symbol_count * card.ability.extra.mult_per_symbol
+            card.ability.extra.chips = symbol_count * card.ability.extra.chips_per_symbol
+
+            if symbol_count > 0 then
+                card_eval_status_text(card, 'extra', nil, nil, nil, {
+                    message = symbol_count .. " Símbolo" .. (symbol_count > 1 and "s" or ""),
+                    colour = G.C.PURPLE
+                })
+            end
+        end
+
+        if context.joker_main and card.ability.extra.symbol_count > 0 then
+            local mult = card.ability.extra.mult
+            local chips = card.ability.extra.chips
+
+            local message_parts = {}
+            if mult > 0 then table.insert(message_parts, "+" .. mult .. " Multi") end
+            if chips > 0 then table.insert(message_parts, "+" .. chips .. " Fichas") end
+            local message = table.concat(message_parts, ", ")
+
+            return {
+                message = message,
+                mult_mod = mult,
+                chip_mod = chips,
+                colour = G.C.MULT
+            }
+        end
+    end,
+}
+
+-- Euro
+SMODS.Atlas{
+    key = 'euro',
+    path = 'euro.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'euro',
+    loc_txt = {
+        name = 'Euro',
+        text = {
+            '{C:money}+1${} por cada mano jugada.'
+        }
+    },
+    atlas = 'euro',
+    rarity = 1,
+    cost = 1,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x = 0, y = 0},
+    config = {},
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = {} }
+    end,
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            return {
+                message = "¡Un euro...!",
+                dollars = 1,
+                colour = G.C.MONEY
+            }
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Joker Tributario
+SMODS.Atlas{
+    key = 'tributario',
+    path = 'tributario.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = "tributario",
+    config = {
+        extra = {
+            dollars = 3,  
+            dollars2 = 0,  
+            threshold = 20 
+        }
+    },
+    loc_txt = {
+        name = 'Comodín tributario',
+        text = {
+            'Si tienes menos de {C:money}$#1#{}, este Joker',
+            'te dará {C:money}+#2#${} por cada mano jugada.',
+            'Si tienes más, no tendrá efecto.'
+        }
+    },
+    pos = { x = 0, y = 0 },
+    cost = 6,
+    pools = {['Maniatromod'] = true},
+    rarity = 2,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'tributario',
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.threshold, center.ability.extra.dollars } }
+    end,
+
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main then
+            local threshold = card.ability.extra.threshold or 20
+            local gain = card.ability.extra.dollars or 3
+            local nogain = card.ability.extra.dollars2 or 0
+
+            if G.GAME.dollars < to_big(threshold) then
+                return {
+                    dollars = gain,
+                    message = "+" .. gain .. "$",
+                    colour = G.C.MONEY
+                }
+            else
+                return {
+                    dollars = nogain,
+                    message = "Sin efecto.",
+                    colour = G.C.UI.TEXT_INACTIVE
+                }
+            end
+        end
+    end
+}
+
+-- Comodín armero
+SMODS.Atlas{
+    key = 'armero',
+    path = 'escopeta.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'armero',
+    loc_txt = {
+        name = 'Comodín armero',
+        text = {
+            'Al inicio de cada ciega, crea {C:attention}un cartucho de escopeta.{}',
+            'Usar {C:attention}un cartucho de escopeta{} aumenta el {X:mult,C:white}Xmulti{} del Joker.',
+            'Al jugar una mano con cartuchos ya cargados, el Joker se reinicia.',
+            '{C:inactive}(Actualmente: {X:mult,C:white}X#1#{C:inactive} multi)'
+        }
+    },
+    atlas = 'armero',
+    rarity = 3,
+    cost = 6,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x = 0, y = 0},
+    config = {
+        extra = {
+            shells = 1,
+            shell_bonus = 2.25,
+            scale = 1,
+            rotation = 1
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { 
+            vars = { 
+                string.format("%.2f", center.ability.extra.shells)
+            } 
+        }
+    end,
+
+    calculate = function(self, card, context)
+        -- Crear carta Cartucho al inicio de cada ciega
+        if context.setting_blind and not context.blueprint then
+            return {
+                func = function()
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.4,
+                        func = function()
+                            play_sound('timpani')
+                            SMODS.add_card({ 
+                                set = 'municion', 
+                                key = 'c_mania_shell'
+                            })                            
+                            card:juice_up(0.3, 0.5)
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {
+                                message = "Recarga",
+                                colour = G.C.PURPLE
+                            })
+                            return true
+                        end
+                    }))
+                    delay(0.6)
+                    return true
+                end
+            }
+        end
+
+        -- Aumentar Shells al usar carta Cartucho
+        if context.using_consumeable then
+            if context.consumeable and 
+               context.consumeable.ability.set == 'municion' and 
+               context.consumeable.config.center.key == 'c_mania_shell' then
+                return {
+                    func = function()
+                        card.ability.extra.shells = card.ability.extra.shells + card.ability.extra.shell_bonus
+                        return true
+                    end,
+                    extra = {
+                        func = function()
+                            card:juice_up(card.ability.extra.scale, card.ability.extra.rotation)
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {
+                                message = "X" .. string.format("%.2f", card.ability.extra.shells),
+                                colour = G.C.RED
+                            })
+                            return true
+                        end,
+                        colour = G.C.WHITE
+                    }
+                }
+            end
+        end
+
+        -- Aplicar multiplicador y resetear
+        if context.joker_main then
+            local shells_value = card.ability.extra.shells
+            card.ability.extra.shells = 1
+            
+            if shells_value > 1 then
+                return {
+                    message = localize{type='variable', key='a_xmult', vars={shells_value}},
+                    Xmult_mod = shells_value,
+                    colour = G.C.RED
+                }
+            end
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.shells = card.ability.extra.shells or 1
+        card.ability.extra.shell_bonus = card.ability.extra.shell_bonus or 2.25
+        card.ability.extra.scale = card.ability.extra.scale or 1
+        card.ability.extra.rotation = card.ability.extra.rotation or 1
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.shells = card_table.ability.extra and card_table.ability.extra.shells or 1
+        card.ability.extra.shell_bonus = card_table.ability.extra and card_table.ability.extra.shell_bonus or 2.25
+        card.ability.extra.scale = card_table.ability.extra and card_table.ability.extra.scale or 1
+        card.ability.extra.rotation = card_table.ability.extra and card_table.ability.extra.rotation or 1
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Pendrive
+SMODS.Atlas{
+    key = 'pendrive',
+    path = 'pendrive.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'pendrive',
+    loc_txt = {
+        name = 'Pendrive',
+        text = {
+            'Por cada minuto, este dará {C:blue}+5{} chips.',
+            'Alcanza un límite de hasta {C:blue}100{} chips.',
+            'Actual: {C:blue}+#1#{} chips'
+        }
+    },
+    atlas = 'pendrive',
+    rarity = 2,
+    cost = 5,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    pos = {x = 0, y = 0},
+    config = {
+        extra = {
+            chips = 0,
+            max_chips = 100,
+            chips_per_minute = 5,
+            start_time = nil,
+            last_minute_check = 0
+        }
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.chips } }
+    end,
+
+    calculate = function(self, card, context)
+        -- Aplicar chips durante la jugada
+        if context.joker_main and card.ability.extra.chips > 0 then
+            return {
+                chip_mod = card.ability.extra.chips,
+                message = "+" .. card.ability.extra.chips .. " Chips",
+                colour = G.C.CHIPS
+            }
+        end
+    end,
+
+    update = function(self, card, dt)
+        -- Inicializar tiempo si es la primera vez
+        if not card.ability.extra.start_time then
+            card.ability.extra.start_time = love.timer.getTime()
+            card.ability.extra.last_minute_check = 0
+        end
+        
+        -- Calcular minutos transcurridos
+        local elapsed_time = love.timer.getTime() - card.ability.extra.start_time
+        local minutes_elapsed = math.floor(elapsed_time / 60)
+        
+        -- Verificar si pasó un minuto completo y no hemos alcanzado el límite
+        if minutes_elapsed > card.ability.extra.last_minute_check and 
+           card.ability.extra.chips < card.ability.extra.max_chips then
+            
+            local minutes_to_add = minutes_elapsed - card.ability.extra.last_minute_check
+            local chips_to_add = minutes_to_add * card.ability.extra.chips_per_minute
+            
+            -- Aplicar límite
+            local new_chips = math.min(
+                card.ability.extra.chips + chips_to_add, 
+                card.ability.extra.max_chips
+            )
+            
+            if new_chips > card.ability.extra.chips then
+                local actual_chips_added = new_chips - card.ability.extra.chips
+                card.ability.extra.chips = new_chips
+                card.ability.extra.last_minute_check = minutes_elapsed
+                
+                -- Mostrar mensaje de progreso
+                card_eval_status_text(card, 'extra', nil, nil, nil, {
+                    message = "+" .. actual_chips_added .. " Chips (" .. minutes_elapsed .. "min)",
+                    colour = G.C.CHIPS
+                })
+            end
+        end
+    end,
+
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.chips = card.ability.extra.chips or 0
+        card.ability.extra.max_chips = card.ability.extra.max_chips or 100
+        card.ability.extra.chips_per_minute = card.ability.extra.chips_per_minute or 5
+        card.ability.extra.start_time = card.ability.extra.start_time or love.timer.getTime()
+        card.ability.extra.last_minute_check = card.ability.extra.last_minute_check or 0
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.chips = card_table.ability.extra and card_table.ability.extra.chips or 0
+        card.ability.extra.max_chips = card_table.ability.extra and card_table.ability.extra.max_chips or 100
+        card.ability.extra.chips_per_minute = card_table.ability.extra and card_table.ability.extra.chips_per_minute or 5
+        -- Reiniciar tiempo al cargar para evitar saltos
+        card.ability.extra.start_time = love.timer.getTime()
+        card.ability.extra.last_minute_check = 0
     end,
 
     check_for_unlock = function(self, args)
@@ -2287,97 +4346,163 @@ SMODS.Joker{
     end
 }
 
--- Atlas de Caja vacia y Julio
+-- Pocket Pebbles
 SMODS.Atlas{
-    key = 'box',
-    path = 'box.png',
+    key = 'pocket_pebbles',
+    path = 'pocketpebbles.png',
     px = 71,
-    py = 95
+    py = 95,
 }
 
-SMODS.Atlas{
-    key = 'julio',
-    path = 'julio.png',
-    px = 71,
-    py = 95
-}
-
--- Caja vacía
-SMODS.Joker{
-    key = 'box',
-    loc_txt = {
-        name = 'Caja vacía',
-        text = {
-            '. . .',
-            '{C:spectral}#1#/4',
+SMODS.Joker{ --Pocket Pebbles
+    key = "pocket_pebbles",
+    config = {
+        extra = {
         }
     },
-    atlas = 'box',
-    rarity = 3,
-    cost = 10,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
+    loc_txt = {
+        ['name'] = 'Piedras de bolsillo',
+        ['text'] = {
+            [1] = 'Si tienes {C:attention}90%{} o más chips',
+            [2] = 'necesarias y {C:red}0 manos{} restantes,',
+            [3] = '{C:red}se destruye{} y {C:green}ganas{} la ronda.'
+        },
+        ['unlock'] = {
+            [1] = ''
+        }
+    },
+    pos = {
+        x = 0,
+        y = 0
+    },
+    cost = 3,
+    rarity = 2,
     blueprint_compat = false,
     eternal_compat = false,
     perishable_compat = false,
-    pos = {x = 0, y = 0},
-    config = { 
-        extra = { 
-            hands_played = 0
-        } 
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = { center.ability.extra.hands_played } }
-    end,
+    unlocked = true,
+    discovered = true,
+    atlas = 'pocket_pebbles',
+    in_pool = function(self, args)
+          return (
+          not args 
+          or args.source ~= 'buf' and args.source ~= 'jud' and args.source ~= 'uta' 
+          or args.source == 'sho' or args.source == 'rif' or args.source == 'rta' or args.source == 'sou' or args.source == 'wra'
+          )
+          and true
+      end,
 
     calculate = function(self, card, context)
-        if context.joker_main then
-            card.ability.extra.hands_played = card.ability.extra.hands_played + 1
-            
-            -- Transformar tras 4 manos
-            if card.ability.extra.hands_played >= 4 then
-                -- Crear Julio y destruir la caja
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.3,
+        if context.after and context.cardarea == G.jokers  then
+            if (G.GAME.chips / G.GAME.blind.chips >= to_big(0.9) and G.GAME.current_round.hands_left == 0) then
+                return {
                     func = function()
-                        -- Crear Julio en la misma posición
-                        local julio = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_mania_julio')
-                        julio:add_to_deck()
-                        G.jokers:emplace(julio)
-                        
-                        -- Mensaje de transformación
-                        card_eval_status_text(julio, 'extra', nil, nil, nil, {
-                            message = "¡Julio ha despertado!",
-                            colour = G.C.PURPLE
-                        })
-                        
-                        -- Remover la caja
-                        G.jokers:remove_card(card)
-                        card:remove()
-                        
-                        return true
-                    end
-                }))
-                
-                return {
-                    message = "¡Transformando!",
-                    colour = G.C.PURPLE
-                }
-            else
-                return {
-                    message = card.ability.extra.hands_played .. "/4 manos",
-                    colour = G.C.UI.TEXT_LIGHT
+                card:start_dissolve()
+                return true
+            end,
+                    message = "¡Por poco!",
+                    extra = {
+                        func = function()
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.5,
+                func = function()
+                    G.GAME.chips = G.GAME.blind.chips
+                    G.STATE = G.STATES.HAND_PLAYED
+                        G.STATE_COMPLETE = true
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Derrotado", colour = G.C.RED})
+                    return true
+                end,
+            }))
+            
+                    return true
+                end,
+                        colour = G.C.GREEN
+                        }
                 }
             end
         end
-    end,
+    end
+}
 
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.hands_played = card.ability.extra.hands_played or 0
+-- Medalla Yo-kai
+SMODS.Atlas{
+    key = 'medalla_yokai',
+    path = 'yokai.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'medalla_yokai',
+    loc_txt = {
+        name = 'Medalla Yo-kai',
+        text = {
+            'Cuando uses un {C:purple}consumible{}, crea otro',
+            'del mismo tipo y lo añade a tu inventario.'
+        }
+    },
+    atlas = 'medalla_yokai',
+    rarity = 3, 
+    cost = 8,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    pos = {x = 0, y = 0},
+
+    calculate = function(self, card, context)
+        if context.using_consumeable and context.consumeable then
+            local consumed_card = context.consumeable
+            local consumed_set = consumed_card.config.center.set
+            
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.3,
+                func = function()
+                    -- Determinar la categoría del consumible usado
+                    local category = nil
+                    if consumed_set == 'Tarot' then
+                        category = 'Tarot'
+                    elseif consumed_set == 'Planet' then
+                        category = 'Planet'
+                    elseif consumed_set == 'Spectral' then
+                        category = 'Spectral'
+                    else
+                        category = 'Tarot' -- Por defecto
+                    end
+                    
+                    -- Crear un consumible aleatorio de la misma categoría
+                    local new_card = create_card(category, G.consumeables, nil, nil, nil, nil, nil, 'yokai')
+                    new_card:add_to_deck()
+                    G.consumeables:emplace(new_card)
+                    
+                    -- Sin animación para evitar partículas persistentes
+                    -- new_card:start_materialize(nil, false)
+                    
+                    -- Mostrar mensaje específico por categoría
+                    local message = "¡Otro " .. category .. "!"
+                    if category == 'Tarot' then
+                        message = "¡Otro Tarot!"
+                    elseif category == 'Planet' then
+                        message = "¡Otro Planeta!"
+                    elseif category == 'Spectral' then
+                        message = "¡Otro Espectral!"
+                    end
+                    
+                    card_eval_status_text(card, 'extra', nil, nil, nil, {
+                        message = message,
+                        colour = G.C.PURPLE
+                    })
+                    
+                    return true
+                end
+            }))
+            
+            return {}
+        end
     end,
 
     check_for_unlock = function(self, args)
@@ -2385,118 +4510,229 @@ SMODS.Joker{
     end,
 }
 
--- Julio
+-- Diédrico
+SMODS.Atlas{
+    key = 'diedrico',
+    path = 'diedrico.png',
+    px = 71,
+    py = 95,
+}
+
 SMODS.Joker{
-    key = 'julio',
+    key = 'diedrico',
     loc_txt = {
-        name = 'Julio',
+        name = 'Diédrico',
         text = {
-            '{C:spectral}+#1#{} multi',
-            'Cada {C:spectral}4 manos{} jugadas,',
-            '{X:dark_edition,C:white}^2{} multi',
-            '{C:inactive}Manos: {C:spectral}#2#/4'
+            'Una mano cuenta como {C:attention}dos{} manos.'
         }
     },
-    atlas = 'julio',
-    rarity = 4,
-    cost = 20,
-    pools = {},  
-    unlocked = true,  
-    discovered = true,  
+    atlas = 'diedrico',
+    rarity = 2,
+    cost = 6,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    config = {},
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            -- Mano extra solo para contadores de manos
+            for _, other in ipairs(G.jokers.cards) do
+                if other ~= card and other.ability and other.ability.extra then
+                    -- Incrementar una vez si usa contador de manos
+                    if type(other.ability.extra.hands_played) == "number" then
+                        other.ability.extra.hands_played = other.ability.extra.hands_played + 1
+                    end
+                end
+            end
+
+            return {
+                message = "¡PHP y PVP!",
+                colour = G.C.PURPLE
+            }
+        end
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+}
+
+-- Frutos del bosque
+SMODS.Atlas{
+    key = 'frutos_bosque',
+    path = 'circus.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'frutos_bosque',
+    loc_txt = {
+        name = 'Frutos del bosque',
+        text = {
+            '{C:blue}+30{} chips o {C:mult}+15{} multi.'
+        }
+    },
+    atlas = 'frutos_bosque',
+    rarity = 1,
+    cost = 4,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
     blueprint_compat = true,
     eternal_compat = true,
-    perishable_compat = false,
+    perishable_compat = true,
     pos = {x = 0, y = 0},
-    config = { 
-        extra = { 
-            base_mult = 2.4,
-            hands_played = 0,
-            squaring_cycles = 0
-        } 
+    config = {
+        extra = {
+            chips_bonus = 30,
+            mult_bonus = 15
+        }
     },
 
     loc_vars = function(self, info_queue, center)
-        return { 
-            vars = { 
-                center.ability.extra.base_mult, 
-                center.ability.extra.hands_played,
-                "N/A"  -- Ya no usamos squaring_cycles de la misma manera
-            } 
-        }
+        return { vars = {} }
     end,
 
     calculate = function(self, card, context)
         if context.joker_main then
-            card.ability.extra.hands_played = card.ability.extra.hands_played + 1
-            
-            -- Calcular multiplicador actual
-            local current_mult = card.ability.extra.base_mult ^ (card.ability.extra.squaring_cycles + 1)
-            
-            -- Elevar al cuadrado cada 4 manos
-            if card.ability.extra.hands_played >= 4 then
-                card.ability.extra.hands_played = 0
-                
-                -- CRÍTICO: Elevar el multiplicador ACTUAL al cuadrado
-                local old_mult = current_mult
-                current_mult = current_mult * current_mult  -- current_mult^2
-                
-                -- Actualizar el sistema para mantener el nuevo valor
-                -- Guardamos el nuevo multiplicador como base para futuros cálculos
-                card.ability.extra.base_mult = current_mult
-                card.ability.extra.squaring_cycles = 0  -- Resetear ya que ahora base_mult es el nuevo valor
-                
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.1,
-                    func = function()
-                        card_eval_status_text(card, 'extra', nil, nil, nil, {
-                            message = "¡Al cuadrado! " .. old_mult .. "² = +" .. current_mult,
-                            colour = G.C.RED
-                        })
-                        return true
-                    end
-                }))
+            -- 50% de probabilidad para cada bonus
+            if math.random() < 0.5 then
+                -- Dar chips
+                return {
+                    chip_mod = card.ability.extra.chips_bonus,
+                    message = "+" .. card.ability.extra.chips_bonus .. " Chips",
+                    colour = G.C.CHIPS
+                }
+            else
+                -- Dar multi
+                return {
+                    mult_mod = card.ability.extra.mult_bonus,
+                    message = "+" .. card.ability.extra.mult_bonus .. " Multi",
+                    colour = G.C.MULT
+                }
             end
-            
-            return {
-                mult_mod = current_mult,
-                message = "+" .. current_mult .. " Multi",
-                colour = G.C.MULT
-            }
         end
     end,
 
     set_ability = function(self, card, initial, delay_sprites)
         card.ability.extra = card.ability.extra or {}
-        card.ability.extra.base_mult = card.ability.extra.base_mult or 24
-        card.ability.extra.hands_played = card.ability.extra.hands_played or 0
-        card.ability.extra.squaring_cycles = card.ability.extra.squaring_cycles or 0
-        
-        -- Marcar como descubierto cuando se obtiene
-        if initial then
-            self.discovered = true
-        end
-    end,
-
-    add_to_deck = function(self, card, from_debuff)
-        -- Marcar como descubierto al añadirlo al mazo
-        self.discovered = true
-    end,
-
-    -- Función especial para que no aparezca en tiendas ni paquetes
-    can_use = function(self, card)
-        return true  -- Se puede usar una vez obtenido
-    end,
-
-    -- Evitar que aparezca en generación aleatoria
-    get_weight = function(self)
-        return 0  -- Peso 0 = nunca aparece aleatoriamente
+        card.ability.extra.chips_bonus = card.ability.extra.chips_bonus or 30
+        card.ability.extra.mult_bonus = card.ability.extra.mult_bonus or 15
     end,
 
     check_for_unlock = function(self, args)
-        -- Julio no se desbloquea normalmente, solo por transformación
-        return false
+        unlock_card(self)
     end,
+}
+
+-- Bola 8 Mágica
+SMODS.Atlas{
+    key = 'bola8',
+    path = '8ball.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker{
+    key = 'bola8',
+    loc_txt = {
+        name = 'Bola 8 Mágica',
+        text = {
+            'Durante 8 rondas, este Joker dará {X:mult,C:white}X2.5{} multi.',
+            'Faltan {C:attention}#1#{} rondas.'
+        }
+    },
+    atlas = 'bola8',
+    rarity = 3,
+    cost = 9,
+    pools = {['Maniatromod'] = true},
+    unlocked = true,
+    discovered = true,
+    blueprint_compat = true,
+    eternal_compat = false,
+    perishable_compat = false,
+    config = { 
+        extra = { 
+            rounds_left = 8, 
+            xmult = 2.5,
+            processed_round_end = false -- Flag para controlar la ejecución
+        } 
+    },
+
+    loc_vars = function(self, info_queue, center)
+        return { vars = { center.ability.extra.rounds_left } }
+    end,
+    
+    -- Se ejecuta al inicio de la ronda para resetear el flag
+    calculate = function(self, card, context)
+        if context.setting_blind and not context.blueprint then
+            card.ability.extra.processed_round_end = false
+        end
+
+        -- Aplica el multiplicador si aún quedan rondas
+        if context.joker_main and card.ability.extra.rounds_left > 0 then
+            return {
+                Xmult_mod = card.ability.extra.xmult,
+                message = "x" .. string.format("%.1f", card.ability.extra.xmult),
+                colour = G.C.RED
+            }
+        end
+
+        -- Lógica de fin de ronda (se ejecuta solo una vez)
+        if context.end_of_round and not context.blueprint and not card.ability.extra.processed_round_end then
+            card.ability.extra.processed_round_end = true -- Activamos el seguro
+
+            if card.ability.extra.rounds_left > 0 then
+                card.ability.extra.rounds_left = card.ability.extra.rounds_left - 1
+                
+                if card.ability.extra.rounds_left <= 0 then
+                    -- Lógica de autodestrucción
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.4,
+                        func = function()
+                            card_eval_status_text(card, 'extra', nil, nil, nil, {
+                                message = "¡La magia se desvanece!",
+                                colour = G.C.PURPLE
+                            })
+                            play_sound('tarot1')
+                            card:juice_up(0.3, 0.4)
+                            G.E_MANAGER:add_event(Event({
+                                trigger = 'after', 
+                                delay = 0.3, 
+                                func = function()
+                                    G.jokers:remove_card(card)
+                                    card:remove()
+                                    card = nil
+                                    return true
+                                end
+                            }))
+                            return true
+                        end
+                    }))
+                end
+            end
+        end
+    end,
+
+    -- Funciones para inicializar y cargar el estado correctamente
+    set_ability = function(self, card, initial, delay_sprites)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.rounds_left = card.ability.extra.rounds_left or 8
+        card.ability.extra.xmult = card.ability.extra.xmult or 2.5
+        card.ability.extra.processed_round_end = card.ability.extra.processed_round_end or false
+    end,
+
+    load = function(self, card, card_table)
+        card.ability.extra = card.ability.extra or {}
+        card.ability.extra.rounds_left = card_table.ability.extra and card_table.ability.extra.rounds_left or 8
+        card.ability.extra.xmult = card_table.ability.extra and card_table.ability.extra.xmult or 2.5
+        card.ability.extra.processed_round_end = false -- Siempre resetear al cargar partida
+    end
 }
 
 -- Cotton (Nuevo Comienzo)
@@ -2656,850 +4892,6 @@ SMODS.Joker{
     end,
 }
 
--- Determinación
-SMODS.Atlas{
-    key = 'determination',
-    path = 'determination.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'determination',
-    loc_txt = {
-        name = 'Determinación',
-        text = {
-            'Este Joker aplica {X:mult,C:white}X#1#{} multi.',
-            'Cuantas más manos juegues, más fuerte se vuelve.',
-            '{C:inactive}Manos: {C:attention}#2#/#3#{}  |||  Nivel: {C:attention}#4#{}'
-        }
-    },
-    atlas = 'determination',
-    rarity = 4,
-    cost = 12,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = false,
-    eternal_compat = false,
-    perishable_compat = false,
-    pos = {x = 0, y = 0},
-    config = {
-        extra = {
-            level = 1,
-            max_level = 20,
-            hands_played = 0,
-            hands_needed = 3,
-            current_mult = 5
-        }
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = {
-            center.ability.extra.current_mult,
-            center.ability.extra.hands_played,
-            center.ability.extra.hands_needed,
-            center.ability.extra.level
-        } }
-    end,
-
-    calculate = function(self, card, context)
-        -- Contar manos y subir de nivel
-        if context.joker_main and not context.blueprint then
-            card.ability.extra.hands_played = card.ability.extra.hands_played + 1
-
-            if card.ability.extra.hands_played >= card.ability.extra.hands_needed 
-            and card.ability.extra.level < card.ability.extra.max_level then
-
-                card.ability.extra.level = card.ability.extra.level + 1
-                card.ability.extra.current_mult = card.ability.extra.current_mult + 1
-                card.ability.extra.hands_played = 0
-                card.ability.extra.hands_needed = card.ability.extra.hands_needed + 1
-
-                -- Efecto visual al subir de nivel
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.5,
-                    func = function()
-                        card_eval_status_text(card, 'extra', nil, nil, nil, {
-                            message = "¡NIVEL " .. card.ability.extra.level .. "!",
-                            colour = G.C.RED
-                        })
-                        card:juice_up(0.3, 0.5)
-                        return true
-                    end
-                }))
-            end
-
-            -- Aplicar solo a sí mismo
-            return {
-                Xmult_mod = card.ability.extra.current_mult,
-                message = "X" .. card.ability.extra.current_mult,
-                colour = G.C.RED
-            }
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.level = card.ability.extra.level or 1
-        card.ability.extra.max_level = card.ability.extra.max_level or 20
-        card.ability.extra.hands_played = card.ability.extra.hands_played or 0
-        card.ability.extra.hands_needed = card.ability.extra.hands_needed or 3
-        card.ability.extra.current_mult = card.ability.extra.current_mult or 5
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Ushanka desgastado
-SMODS.Atlas{
-    key = 'ushanka_des',
-    path = 'ushanka_des.png', 
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'ushanka_des',
-    loc_txt = {
-        name = 'Ushanka desgastado',
-        text = {
-            'Cada {C:attention}4{} rondas, hay un {C:green,E:1}25%{} de probabilidad',
-            'de conseguir {C:dark_edition}+1{} espacio para Jokers.',
-            '{C:inactive}Rondas: {C:attention}#1#/4{}'
-        }
-    },
-    atlas = 'ushanka_des',
-    rarity = 3,
-    cost = 10,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = false,
-    eternal_compat = false,
-    perishable_compat = false,
-    pos = {x=0, y=0},
-    config = {
-        extra = {
-            rounds_completed = 0,
-            rounds_needed = 4,
-            processed_round_end = false
-        }
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = { center.ability.extra.rounds_completed } }
-    end,
-
-    calculate = function(self, card, context)
-        -- Al inicio de una nueva ciega, resetear flag de procesamiento
-        if context.setting_blind and not context.blueprint then
-            card.ability.extra.processed_round_end = false
-            return
-        end
-
-        -- Al final de la ronda
-        if context.end_of_round and not context.blueprint and not card.ability.extra.processed_round_end then
-            card.ability.extra.processed_round_end = true
-            card.ability.extra.rounds_completed = card.ability.extra.rounds_completed + 1
-            
-            -- Verificar si es momento de intentar conseguir espacio
-            if card.ability.extra.rounds_completed >= card.ability.extra.rounds_needed then
-                card.ability.extra.rounds_completed = 0  -- Resetear contador
-                
-                -- 25% de probabilidad
-                if math.random() < 0.25 then
-                    -- Conseguir +1 espacio para Jokers
-                    G.jokers.config.card_limit = G.jokers.config.card_limit + 1
-                    
-                    G.E_MANAGER:add_event(Event({
-                        trigger = 'after',
-                        delay = 0.5,
-                        func = function()
-                            card_eval_status_text(card, 'extra', nil, nil, nil, {
-                                message = "¡+1 Espacio Joker!",
-                                colour = G.C.PURPLE
-                            })
-                            card:juice_up(0.3, 0.5)
-                            return true
-                        end
-                    }))
-                    
-                    return {
-                        message = "¡Espacio conseguido!",
-                        colour = G.C.GREEN
-                    }
-                else
-                    -- Falló la probabilidad
-                    G.E_MANAGER:add_event(Event({
-                        trigger = 'after',
-                        delay = 0.3,
-                        func = function()
-                            card_eval_status_text(card, 'extra', nil, nil, nil, {
-                                message = "No conseguido...",
-                                colour = G.C.RED
-                            })
-                            return true
-                        end
-                    }))
-                    
-                    return {
-                        message = "Falló (25%)",
-                        colour = G.C.RED
-                    }
-                end
-            else
-                -- Mostrar progreso hacia el siguiente intento
-                local remaining = card.ability.extra.rounds_needed - card.ability.extra.rounds_completed
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.3,
-                    func = function()
-                        card_eval_status_text(card, 'extra', nil, nil, nil, {
-                            message = remaining .. " ronda" .. (remaining > 1 and "s" or "") .. " para intento",
-                            colour = G.C.SUITS.Diamonds
-                        })
-                        return true
-                    end
-                }))
-            end
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.rounds_completed = card.ability.extra.rounds_completed or 0
-        card.ability.extra.rounds_needed = card.ability.extra.rounds_needed or 4
-        card.ability.extra.processed_round_end = card.ability.extra.processed_round_end or false
-    end,
-
-    load = function(self, card, card_table)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.rounds_completed = card_table.ability.extra and card_table.ability.extra.rounds_completed or 0
-        card.ability.extra.rounds_needed = card_table.ability.extra and card_table.ability.extra.rounds_needed or 4
-        card.ability.extra.processed_round_end = false -- Siempre resetear al cargar
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Xifox desgastado 
-SMODS.Atlas{
-    key = 'xifox_des',
-    path = 'xifox_des.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'xifox_des',
-    loc_txt = {
-        name = 'Xifox desgastado',
-        text = {
-            'Si juegas un {C:attention}7{}, hay un {C:green,E:1}10%{} de',
-            'probabilidad de hacerlo {C:dark_edition}policromo{}.'
-        }
-    },
-    atlas = 'xifox_des',
-    rarity = 3,
-    cost = 10,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = false,
-    perishable_compat = false,
-    pos = {x=0, y=0},
-    config = {},
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = {} }
-    end,
-
-    calculate = function(self, card, context)
-        -- Comprobar que estamos en el contexto correcto y que other_card es válido
-        if context.individual and context.cardarea == G.play and context.other_card then
-            local oc = context.other_card
-
-            -- Verificar que other_card tenga get_id y sea callable
-            if oc.get_id and type(oc.get_id) == "function" then
-                local id = oc:get_id()
-                if id == 7 then
-                    -- 10% de probabilidad de hacer policromo
-                    if math.random() < 0.10 then
-                        -- Solo intentar set_edition si existe la función
-                        if oc.set_edition and type(oc.set_edition) == "function" then
-                            G.E_MANAGER:add_event(Event({
-                                trigger = 'after',
-                                delay = 0.1,
-                                func = function()
-                                    -- Proteger set_edition por si falla internamente
-                                    local ok, err = pcall(function()
-                                        oc:set_edition({polychrome = true}, true)
-                                    end)
-                                    if not ok then
-                                        -- opcional: loggear el error si existe consola
-                                        print("Error al aplicar polychrome:", err)
-                                    else
-                                        oc:juice_up(0.3, 0.5)
-                                        card_eval_status_text(card, 'extra', nil, nil, nil, {
-                                            message = "¡Policromo!",
-                                            colour = G.C.SECONDARY_SET.Spectral
-                                        })
-                                    end
-                                    return true
-                                end
-                            }))
-                        else
-                            -- Fallback: si no existe set_edition, intentar marcar alguna propiedad segura
-                            print("Advertencia: context.other_card no tiene set_edition")
-                        end
-
-                        return {
-                            message = "¡Chacho!",
-                            colour = G.C.SECONDARY_SET.Spectral
-                        }
-                    end
-                end
-            end
-        end
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Obituary
-SMODS.Atlas{
-    key = 'obituary',
-    path = 'obituary.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'obituary',
-    loc_txt = {
-        name = 'Obituary',
-        text = {
-            'Cada {C:attention}As{} o {C:attention}2{} jugado dará {C:mult}+4{} multi.'
-        }
-    },
-    atlas = 'obituary',
-    rarity = 2,
-    cost = 6,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    pos = {x=0, y=0},
-    config = {
-        extra = {
-            mult_per_card = 4,
-        }
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = {} }
-    end,
-
-    calculate = function(self, card, context)
-        -- Solo cuando se procesa la carta jugada en mesa
-        if context.individual 
-           and context.cardarea == G.play 
-           and context.other_card 
-           and not context.repetition then
-
-            local id = context.other_card:get_id()
-            if id == 14 or id == 2 then
-                return {
-                    mult = card.ability.extra.mult_per_card,
-                    message = "+" .. card.ability.extra.mult_per_card .. " Multi",
-                    colour = G.C.MULT
-                }
-            end
-        end
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Amongla desgastado
-SMODS.Atlas{
-    key = 'amongla_des',
-    path = 'amongla_des.png',  
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'amongla_des',
-    loc_txt = {
-        name = 'Amongla desgastado',
-        text = {
-            '{X:mult,C:white}X#1#{} multi',
-            '{C:green,E:1}25%{} de probabilidad',
-            'de cerrar el juego.'
-        }
-    },
-    atlas = 'amongla_des',
-    rarity = 4,
-    cost = 10,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = false,
-    perishable_compat = false,
-    pos = {x = 0, y = 0},
-    config = { extra = { xmult = 6 } },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = { center.ability.extra.xmult } }
-    end,
-
-    calculate = function(self, card, context)
-        if context.joker_main then
-            -- Verificar el cierre del juego (25% de probabilidad)
-            if math.random() < 0.25 then
-                -- Programar el cierre para después de mostrar el efecto
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.5,
-                    func = function()
-                        -- Mostrar mensaje de advertencia
-                        card_eval_status_text(card, 'extra', nil, nil, nil, {
-                            message = '¡GILIPOLLAS!',
-                            colour = G.C.RED
-                        })
-                        
-                        -- Cerrar el juego después de un breve delay
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            delay = 1.0,
-                            func = function()
-                                -- Intentar cerrar el juego de manera limpia
-                                love.event.quit()
-                                return true
-                            end
-                        }))
-                        return true
-                    end
-                }))
-            end
-            
-            -- Aplicar el multiplicador x6
-            return {
-                message = "x" .. card.ability.extra.xmult,
-                Xmult_mod = card.ability.extra.xmult,
-                colour = G.C.RED
-            }
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.xmult = card.ability.extra.xmult or 6
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Diédrico
-SMODS.Atlas{
-    key = 'diedrico',
-    path = 'diedrico.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'diedrico',
-    loc_txt = {
-        name = 'Diédrico',
-        text = {
-            'Una mano cuenta como {C:attention}dos{} manos.'
-        }
-    },
-    atlas = 'diedrico',
-    rarity = 2,
-    cost = 6,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    config = {},
-
-    calculate = function(self, card, context)
-        if context.joker_main then
-            -- Mano extra solo para contadores de manos
-            for _, other in ipairs(G.jokers.cards) do
-                if other ~= card and other.ability and other.ability.extra then
-                    -- Incrementar una vez si usa contador de manos
-                    if type(other.ability.extra.hands_played) == "number" then
-                        other.ability.extra.hands_played = other.ability.extra.hands_played + 1
-                    end
-                end
-            end
-
-            return {
-                message = "¡PHP y PVP!",
-                colour = G.C.PURPLE
-            }
-        end
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Pendrive
-SMODS.Atlas{
-    key = 'pendrive',
-    path = 'pendrive.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'pendrive',
-    loc_txt = {
-        name = 'Pendrive',
-        text = {
-            'Por cada minuto, este dará {C:blue}+5{} chips.',
-            'Alcanza un límite de hasta {C:blue}100{} chips.',
-            'Actual: {C:blue}+#1#{} chips'
-        }
-    },
-    atlas = 'pendrive',
-    rarity = 2,
-    cost = 5,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    pos = {x = 0, y = 0},
-    config = {
-        extra = {
-            chips = 0,
-            max_chips = 100,
-            chips_per_minute = 5,
-            start_time = nil,
-            last_minute_check = 0
-        }
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = { center.ability.extra.chips } }
-    end,
-
-    calculate = function(self, card, context)
-        -- Aplicar chips durante la jugada
-        if context.joker_main and card.ability.extra.chips > 0 then
-            return {
-                chip_mod = card.ability.extra.chips,
-                message = "+" .. card.ability.extra.chips .. " Chips",
-                colour = G.C.CHIPS
-            }
-        end
-    end,
-
-    update = function(self, card, dt)
-        -- Inicializar tiempo si es la primera vez
-        if not card.ability.extra.start_time then
-            card.ability.extra.start_time = love.timer.getTime()
-            card.ability.extra.last_minute_check = 0
-        end
-        
-        -- Calcular minutos transcurridos
-        local elapsed_time = love.timer.getTime() - card.ability.extra.start_time
-        local minutes_elapsed = math.floor(elapsed_time / 60)
-        
-        -- Verificar si pasó un minuto completo y no hemos alcanzado el límite
-        if minutes_elapsed > card.ability.extra.last_minute_check and 
-           card.ability.extra.chips < card.ability.extra.max_chips then
-            
-            local minutes_to_add = minutes_elapsed - card.ability.extra.last_minute_check
-            local chips_to_add = minutes_to_add * card.ability.extra.chips_per_minute
-            
-            -- Aplicar límite
-            local new_chips = math.min(
-                card.ability.extra.chips + chips_to_add, 
-                card.ability.extra.max_chips
-            )
-            
-            if new_chips > card.ability.extra.chips then
-                local actual_chips_added = new_chips - card.ability.extra.chips
-                card.ability.extra.chips = new_chips
-                card.ability.extra.last_minute_check = minutes_elapsed
-                
-                -- Mostrar mensaje de progreso
-                card_eval_status_text(card, 'extra', nil, nil, nil, {
-                    message = "+" .. actual_chips_added .. " Chips (" .. minutes_elapsed .. "min)",
-                    colour = G.C.CHIPS
-                })
-            end
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.chips = card.ability.extra.chips or 0
-        card.ability.extra.max_chips = card.ability.extra.max_chips or 100
-        card.ability.extra.chips_per_minute = card.ability.extra.chips_per_minute or 5
-        card.ability.extra.start_time = card.ability.extra.start_time or love.timer.getTime()
-        card.ability.extra.last_minute_check = card.ability.extra.last_minute_check or 0
-    end,
-
-    load = function(self, card, card_table)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.chips = card_table.ability.extra and card_table.ability.extra.chips or 0
-        card.ability.extra.max_chips = card_table.ability.extra and card_table.ability.extra.max_chips or 100
-        card.ability.extra.chips_per_minute = card_table.ability.extra and card_table.ability.extra.chips_per_minute or 5
-        -- Reiniciar tiempo al cargar para evitar saltos
-        card.ability.extra.start_time = love.timer.getTime()
-        card.ability.extra.last_minute_check = 0
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Gafas de Spamton
-SMODS.Atlas{
-    key = 'spamton',
-    path = 'spamton.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'spamton',
-    loc_txt = {
-        name = 'Gafas de Spamton',
-        text = {
-            'Gana {X:mult,C:white}+1X{} multi por cada Joker',
-            'vendido durante una ronda.',
-            'Actual: {X:mult,C:white}X#1#{} multi'
-        }
-    },
-    atlas = 'spamton',
-    rarity = 3,
-    cost = 8,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = false,
-    pos = {x=0, y=0},
-    config = { 
-        extra = { 
-            xmult = 1,
-            jokers_sold_this_round = 0,
-            processed_round_end = false
-        } 
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = { string.format("%.1f", center.ability.extra.xmult) } }
-    end,
-
-    calculate = function(self, card, context)
-        -- Reiniciar al inicio de cada ronda
-        if context.setting_blind and not context.blueprint then
-            card.ability.extra.xmult = 1
-            card.ability.extra.jokers_sold_this_round = 0
-            card.ability.extra.processed_round_end = false
-            return
-        end
-
-        -- Detectar cuando se vende un Joker
-        if context.selling_card and context.card and context.card.ability and context.card.ability.set == "Joker" then
-            card.ability.extra.jokers_sold_this_round = card.ability.extra.jokers_sold_this_round + 1
-            card.ability.extra.xmult = 1 + card.ability.extra.jokers_sold_this_round
-            
-            -- Efecto visual cuando se vende
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.1,
-                func = function()
-                    card_eval_status_text(card, 'extra', nil, nil, nil, {
-                        message = "+1X Multi (X" .. string.format("%.1f", card.ability.extra.xmult) .. " total)",
-                        colour = G.C.MULT
-                    })
-                    return true
-                end
-            }))
-            
-            return {
-                message = "¡Joker vendido!",
-                colour = G.C.MONEY
-            }
-        end
-
-        -- Aplicar el multiplicador en la mano jugada
-        if context.joker_main and card.ability.extra.xmult > 1 then
-            return {
-                Xmult_mod = card.ability.extra.xmult,
-                message = "X" .. string.format("%.1f", card.ability.extra.xmult),
-                colour = G.C.MULT
-            }
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.xmult = card.ability.extra.xmult or 1
-        card.ability.extra.jokers_sold_this_round = card.ability.extra.jokers_sold_this_round or 0
-        card.ability.extra.processed_round_end = card.ability.extra.processed_round_end or false
-    end,
-
-    load = function(self, card, card_table)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.xmult = card_table.ability.extra and card_table.ability.extra.xmult or 1
-        card.ability.extra.jokers_sold_this_round = card_table.ability.extra and card_table.ability.extra.jokers_sold_this_round or 0
-        card.ability.extra.processed_round_end = false 
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Euro
-SMODS.Atlas{
-    key = 'euro',
-    path = 'euro.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'euro',
-    loc_txt = {
-        name = 'Euro',
-        text = {
-            '{C:money}+1${} por cada mano jugada.'
-        }
-    },
-    atlas = 'euro',
-    rarity = 1,
-    cost = 1,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    pos = {x = 0, y = 0},
-    config = {},
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = {} }
-    end,
-
-    calculate = function(self, card, context)
-        if context.joker_main then
-            return {
-                message = "¡Un euro...!",
-                dollars = 1,
-                colour = G.C.MONEY
-            }
-        end
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
--- Frutos del bosque
-SMODS.Atlas{
-    key = 'frutos_bosque',
-    path = 'circus.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker{
-    key = 'frutos_bosque',
-    loc_txt = {
-        name = 'Frutos del bosque',
-        text = {
-            '{C:blue}+30{} chips o {C:mult}+15{} multi.'
-        }
-    },
-    atlas = 'frutos_bosque',
-    rarity = 1,
-    cost = 4,
-    pools = {['Maniatromod'] = true},
-    unlocked = true,
-    discovered = true,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    pos = {x = 0, y = 0},
-    config = {
-        extra = {
-            chips_bonus = 30,
-            mult_bonus = 15
-        }
-    },
-
-    loc_vars = function(self, info_queue, center)
-        return { vars = {} }
-    end,
-
-    calculate = function(self, card, context)
-        if context.joker_main then
-            -- 50% de probabilidad para cada bonus
-            if math.random() < 0.5 then
-                -- Dar chips
-                return {
-                    chip_mod = card.ability.extra.chips_bonus,
-                    message = "+" .. card.ability.extra.chips_bonus .. " Chips",
-                    colour = G.C.CHIPS
-                }
-            else
-                -- Dar multi
-                return {
-                    mult_mod = card.ability.extra.mult_bonus,
-                    message = "+" .. card.ability.extra.mult_bonus .. " Multi",
-                    colour = G.C.MULT
-                }
-            end
-        end
-    end,
-
-    set_ability = function(self, card, initial, delay_sprites)
-        card.ability.extra = card.ability.extra or {}
-        card.ability.extra.chips_bonus = card.ability.extra.chips_bonus or 30
-        card.ability.extra.mult_bonus = card.ability.extra.mult_bonus or 15
-    end,
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
-}
-
 -- Nira
 SMODS.Atlas{
     key = 'nira',
@@ -3614,7 +5006,7 @@ SMODS.Joker{
     eternal_compat = false,
     perishable_compat = false,
     pos = {x=0, y=0},
-    soul_pos = { x = 0, y = 1 },
+    soul_pos = { x = 1, y = 0 },
     config = {
         extra = {
             rare_jokers = 0,
@@ -3726,8 +5118,8 @@ SMODS.Joker{
                             G.P_CENTERS.m_mania_dulce
                         }, pseudoseed('drokstav_enhance'))
 
-                        local chosen_seal = pseudorandom_element({"Gold", "Red", "Blue", "Purple"}, pseudoseed('drokstav_seal'))
-                        local chosen_edition = pseudorandom_element({"e_foil", "e_holo", "e_polychrome", "e_negative"}, pseudoseed('drokstav_edition'))
+                        local chosen_seal = pseudorandom_element({"Gold", "Red", "Blue", "Purple", "mania_sellocitrico"}, pseudoseed('drokstav_seal'))
+                        local chosen_edition = pseudorandom_element({"e_foil", "e_holo", "e_polychrome", "e_negative", "mania_citrico"}, pseudoseed('drokstav_edition'))
 
                         -- Evitar duplicados en la mano
                         for _, c in ipairs(G.hand.cards) do
