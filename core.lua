@@ -70,5 +70,147 @@ for _, file in ipairs(files) do
     f()
 end
 
+SMODS.current_mod.extra_tabs = function()
+    return {
+        {
+            label = 'Creditos',
+            tab_definition_function = function()
+                return {
+                    n = G.UIT.ROOT, 
+                    config = {
+                        align = "cm", 
+                        padding = 0.2, 
+                        colour = G.C.BLACK, 
+                        r = 0.1, 
+                        minw = 10, 
+                        minh = 8
+                    }, 
+                    nodes = {
+                        {
+                            n = G.UIT.C, 
+                            config = {align = "cm", padding = 0.1}, 
+                            nodes = {
+                                -- Título
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.15}, 
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T, 
+                                            config = {
+                                                text = "CREDITOS", 
+                                                colour = G.C.UI.TEXT_LIGHT, 
+                                                scale = 0.7
+                                            }
+                                        }
+                                    }
+                                },
+                                -- Espacio
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.1}, 
+                                    nodes = {}
+                                },
+                                -- Creador
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.05}, 
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T, 
+                                            config = {
+                                                text = "AppleMania", 
+                                                colour = G.C.GREEN, 
+                                                scale = 0.55
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.02}, 
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T, 
+                                            config = {
+                                                text = "¡He creado esto!", 
+                                                colour = G.C.UI.TEXT_LIGHT, 
+                                                scale = 0.4
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.1}, 
+                                    nodes = {}
+                                },
+                                -- Ideas (Título)
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.05}, 
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T, 
+                                            config = {
+                                                text = "Ideas:", 
+                                                colour = G.C.GREEN, 
+                                                scale = 0.5
+                                            }
+                                        }
+                                    }
+                                },
+                                -- Lista de gente
+                                {
+                                    n = G.UIT.R,
+                                    config = {align = "cm", padding = 0.02},
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T,
+                                            config = {
+                                                text = "Xifox, LukexsGame, Javier25, DoggoDS,", 
+                                                colour = G.C.UI.TEXT_LIGHT,
+                                                scale = 0.4
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    n = G.UIT.R,
+                                    config = {align = "cm", padding = 0.02},
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T,
+                                            config = {
+                                                text = " Nauiyo, Julio24pro, Bunbxnblxxd, Lauxs_v0,", 
+                                                colour = G.C.UI.TEXT_LIGHT,
+                                                scale = 0.4
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    n = G.UIT.R,
+                                    config = {align = "cm", padding = 0.02},
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T,
+                                            config = {
+                                                text = " Alberto.rueda_07, Jesu.supongo, K4l1zz_33 ", 
+                                                colour = G.C.UI.TEXT_LIGHT,
+                                                scale = 0.4
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            end,
+        }
+    }
+end
+
 ----------------------------------------------------------
 ----------- MOD CODE END ----------------------------------
