@@ -712,17 +712,13 @@ SMODS.Consumable {
     key = 'campanas',
     set = 'simbolos',
     pos = { x = 3, y = 0 },
-    config = { extra = {
-        dollars_value = 3,
-        free_reroll_used = false
-    } },
+    config = { extra = { dollars_value = 3 } },
     loc_txt = {
         name = 'Campanas',
         text = {
-        [1] = '{C:green}Consumir:{} {C:money}+3${}',
-        [2] = '{C:green}Mantener:{} Una {C:attention}reposición',
-        [3] = '{C:attention}gratis{} al final de la ronda'
-    }
+            [1] = '{C:green}Consumir:{} {C:money}+3${}',
+            [2] = '{C:green}Mantener:{} {C:attention}Reposiciones gratis{} en tienda'
+        }
     },
     cost = 3,
     unlocked = true,
@@ -730,39 +726,38 @@ SMODS.Consumable {
     hidden = false,
     can_repeat_soul = false,
     atlas = 'CustomConsumables',
-  calculate = function(self, card, context)
-        if context.ending_shop and not card.ability.extra.free_reroll_used then
-            card.ability.extra.free_reroll_used = true
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    if G.shop_jokers then
-                        local cost = G.GAME.current_round.reroll_cost or 5
-                        card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize('k_reroll'), colour = G.C.MONEY})
-                        G.GAME.current_round.reroll_cost = 0
-                        G.FUNCS.reroll_shop()
-                        G.GAME.current_round.reroll_cost = cost
-                    end
-                    return true
-                end
-            }))
+
+    calculate = function(self, card, context)
+        -- Solo se ejecuta cuando estamos en la tienda
+        if G.STATE == G.STATES.SHOP and not context.buying then
+            -- Establecer el costo de reroll actual a 0, pero sin afectar los valores base
+            if G.GAME.current_round and G.GAME.current_round.reroll_cost ~= 0 then
+                G.GAME.current_round.reroll_cost = 0
+                card_eval_status_text(card, 'extra', nil, nil, nil, {
+                    message = "¡Reposiciones gratis!",
+                    colour = G.C.MONEY
+                })
+            end
         end
-        if context.end_of_round and not context.individual and not context.repetition then
-            card.ability.extra.free_reroll_used = false
-        end
-  end,
-  use = function(self, card, area, copier)
-        local used_card = copier or card
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.4,
-                func = function()
-                    card_eval_status_text(used_card, 'extra', nil, nil, nil, {message = "+"..tostring(3).." $", colour = G.C.MONEY})
-                    ease_dollars(3, true)
-                    return true
-                end
-            }))
-            delay(0.6)
     end,
+
+    use = function(self, card, area, copier)
+        local used_card = copier or card
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.4,
+            func = function()
+                card_eval_status_text(used_card, 'extra', nil, nil, nil, {
+                    message = "+3$",
+                    colour = G.C.MONEY
+                })
+                ease_dollars(3, true)
+                return true
+            end
+        }))
+        delay(0.6)
+    end,
+
     can_use = function(self, card)
         return true
     end
@@ -979,4 +974,5 @@ SMODS.Consumable{
     can_use = function(self, card)
         return true
     end
+
 }
