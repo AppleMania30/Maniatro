@@ -6,30 +6,30 @@ return {
                 name = 'Green Apple',
                 text = {
                     'If you play exactly {C:attention}5{} cards,',
-                    'gain {C:money}+$3{} and {C:mult}+5{} mult for that hand.'
+                    'gain {C:money}+3${} and {C:mult}+5{} mult for that hand.'
                 }
             },
             j_mania_apple_plus = {
                 name = 'Granny Smith',
                 text = {
                     'If the played hand is a {C:green}#1#{}, add',
-                    'a {C:green,E:1}sour card{} to your hand.',
+                    'a {C:green,E:1}Sour Card{} to your hand.',
                     '{C:inactive}Hand type changes each round.'
                 }
             },
             j_mania_fructifero = {
                 name = 'Fruitful Joker',
                 text = {
-                    '{C:mult}+3{} mult for each',
-                    'played card with the',
-                    '{C:green}Apple{} suit when scoring.'
+                    'Played cards with',
+                    '{C:green}Apple{} suit give',
+                    '{C:mult}+3{} Mult when scored.'
                 }
             },
             j_mania_ushanka = {
-                name = 'Ushanka',
+                name = 'Invernal Joker',
                 text = {
                     'Gain {C:dark_edition}+1{} Joker slot',
-                    'but your hand size is reduced by {C:red}-1{} card'
+                    'but your hand size is reduced by {C:red}-1{} card.'
                 }
             },
             j_mania_ushanka_des = {
@@ -143,7 +143,7 @@ return {
                 }
             },
             j_mania_minion_pigs = {
-                name = 'Minion Pigs',
+                name = 'Minion Pig',
                 text = {
                     'For each {C:green}Common Joker{}',
                     'acquired, this Joker gains',
@@ -197,6 +197,15 @@ return {
                     'mult becomes {X:mult,C:white}X2.5{} and increases',
                     '{X:mult,C:white}+0.5X{} per additional repetition.',
                     'Current: {X:mult,C:white}X#1#{} mult'
+                }
+            },
+            j_mania_espejo = {
+                name = 'Mirror',
+                text = {
+                    'Every {C:attention}4 rounds{}, it creates a copy',
+                    'of the last Joker you sold.',
+                    '{C:inactive}Last Joker sold: {C:attention}#1#{}',
+                    '{C:inactive}Rounds remaining: {C:attention}#2#{}'
                 }
             },
             j_mania_rufino = {
@@ -334,8 +343,8 @@ return {
                 name = 'Gambling Addiction',
                 text = {
                     'At the end of each hand,',
-                    'gain {C:chips}+15{} chips and {C:mult}+5{} mult for each',
-                    '{C:attention}Symbol{} you own.',
+                    'gain {C:chips}+15{} chips and {C:mult}+5{} mult for',
+                    'each {C:attention}Symbol{} you own.',
                     '{C:inactive}(Symbols: #1#)',
                     '{C:mult}+#2#{} Mult | {C:chips}+#3#{} Chips'
                 }
@@ -392,8 +401,8 @@ return {
             j_mania_pocket_pebbles = {
                 name = 'Pocket Pebbles',
                 text = {
-                    'If you have {C:attention}90%{} or more of the required chips',
-                    'and {C:red}0 hands{} remaining,',
+                    'If you have {C:attention}90%{} or more of',
+                    'the required chips and {C:red}0 hands{} remaining,',
                     'it {C:red}destroys itself{} and you {C:green}win{} the round.'
                 }
             },
@@ -413,7 +422,7 @@ return {
             j_mania_frutos_bosque = {
                 name = 'Forest Fruits',
                 text = {
-                    '{C:blue}+30{} chips or {C:mult}+15{} mult.'
+                    'Gain {C:blue}+30{} chips or {C:mult}+15{} mult.'
                 }
             },
             j_mania_bola8 = {
@@ -462,8 +471,38 @@ return {
                     'Current: {X:green,C:white}X#1#{} mult',
                 }
             },
+            j_mania_fireball = {
+                name = 'Fireball',
+                text = {
+                    'Each played card has a {C:green,E:1}25%{} chance',
+                    'to {C:attention}quintuple{} its base {C:blue}chips{}.',
+                }
+            },
+            j_mania_onthebeat = {
+                name = 'On the Beat',
+                text = {
+                    'Gain {C:mult}+#1#{} mult based on the',
+                    '{C:attention}main game volume{}.',
+                    '{C:inactive}(Current volume: #2#%)'
+                }
+            },
+            j_mania_freckles = {
+                name = 'Freckles',
+                text = {
+                    'Gives {X:mult,C:white}X4{} mult if the game',
+                    'speed is at {C:attention}X1{}.' 
+                }
+            },
+            j_mania_lanzaguisantes = {
+                name = 'Goofy ahh Peashooter',
+                text = {
+                    '{C:blue}+#1#{} chips',
+                    'Increases {C:blue}+10{} chips each hand played.',
+                    '{C:inactive}Resets when the round ends.{}',
+                }
+            },
         },
-        
+
         -- Consumables (Tarot, Spectral, Symbols)
         Tarot = {
             c_mania_acidity = {
@@ -517,7 +556,7 @@ return {
                 }
             },
             c_mania_limon = {
-                name = 'Lemon',
+                name = 'Lemons',
                 text = {
                     '{C:green}Consume:{} {C:money}+$2{}',
                     '{C:green}Hold:{} Each',
@@ -536,8 +575,8 @@ return {
                 name = 'Bells',
                 text = {
                     '{C:green}Consume:{} {C:money}+$3{}',
-                    '{C:green}Hold:{} One {C:attention}free',
-                    '{C:attention}reroll{} at the end of the round'
+                    '{C:green}Hold:{} {C:attention}Free',
+                    '{C:attention}rerolls{} at the end of the round'
                 }
             },
             c_mania_diamantes = {
@@ -739,6 +778,7 @@ return {
             mania_citrico = 'Citrus',
             mania_iridiscente = 'Iridescent',
             mania_sellocitrico_seal = 'Citrus Seal',
+            mania_simbolos = 'Symbols',
         },
     },
 }

@@ -26,7 +26,7 @@ return {
                 }
             },
             j_mania_ushanka = {
-                name = 'Ushanka',
+                name = 'Comodín invernal',
                 text = {
                     'Obtienes {C:dark_edition}+1{} espacio de Joker',
                     'pero tu mano se reduce en {C:red}-1{} carta'
@@ -143,7 +143,7 @@ return {
                 }
             },
             j_mania_minion_pigs = {
-                name = 'Minion Pigs',
+                name = 'Minion Pig',
                 text = {
                     'Por cada {C:green}Joker de rareza común{}',
                     'adquirido, este Joker obtiene',
@@ -197,6 +197,15 @@ return {
                     'el multiplicador pasa a {X:mult,C:white}X2.5{} y aumenta',
                     '{X:mult,C:white}+0.5X{} por cada repetición adicional.',
                     'Actual: {X:mult,C:white}X#1#{} multi'
+                }
+            },
+            j_mania_espejo = {
+                name = 'Espejo',
+                text = {
+                    'Cada {C:attention}4 rondas{}, crea una copia',
+                    'del último Joker vendido.',
+                    '{C:inactive}Último vendido: {C:attention}#1#{}',
+                    '{C:inactive}Rondas restantes: {C:attention}#2#{}'
                 }
             },
             j_mania_rufino = {
@@ -462,6 +471,36 @@ return {
                     'Actual: {X:green,C:white}X#1#{} multi',
                 }
             },
+            j_mania_fireball = {
+                name = 'Fireball',
+                text = {
+                    'Cada carta jugada tiene un {C:green,E:1}25%{} de',
+                    'probabilidad de {C:attention}quintuplicar{} sus chips base.'
+                }
+            },
+            j_mania_onthebeat = {
+                name = 'On The Beat',
+                text = {
+                    'Gana {C:mult}+#1#{} multi basado en el',
+                    '{C:attention}volumen principal del juego{}.',
+                    '{C:inactive}(Volumen actual: #2#%)'
+                }
+            },
+            j_mania_freckles = {
+                name = 'Freckles',
+                text = {
+                    'Da {X:mult,C:white}X4{} multi si la velocidad',
+                    'del juego está a {C:attention}X1{}.'
+                }
+            },
+            j_mania_lanzaguisantes = {
+                name = 'Goofy ahh Peashooter',
+                text = {
+                    '{C:blue}+#1#{} chips.',
+                    'Aumenta {C:blue}+10{} chips cada mano jugada.',
+                    '{C:inactive}Se reinicia al final de la ronda.{}',
+                }
+            },
         },
         
         -- Consumables (Tarot, Spectral, Symbols)
@@ -517,7 +556,7 @@ return {
                 }
             },
             c_mania_limon = {
-                name = 'Limón',
+                name = 'Limones',
                 text = {
                     '{C:green}Consumir:{} {C:money}+2${}',
                     '{C:green}Mantener:{} Cada carta de',
@@ -536,8 +575,8 @@ return {
                 name = 'Campanas',
                 text = {
                     '{C:green}Consumir:{} {C:money}+3${}',
-                    '{C:green}Mantener:{} Una {C:attention}reposición',
-                    '{C:attention}gratis{} al final de la ronda'
+                    '{C:green}Mantener:{} {C:attention}Reposiciones{}',
+                    '{C:attention}gratis{} al final de la ronda.'
                 }
             },
             c_mania_diamantes = {
@@ -553,7 +592,7 @@ return {
                 text = {
                     '{C:green}Consumir:{} {C:money}+5${}',
                     '{C:green}Mantener:{} {C:money}+5${} al',
-                    'final de cada ronda'
+                    'final de cada ronda.'
                 }
             },
             c_mania_sietes = {
@@ -726,14 +765,13 @@ return {
         -- Dictionary
         dictionary = {
             k_mania_maniatromod = 'Jokers Maniatro',
-            b_mania_simbolos = 'Símbolos',
-            b_mania_municion = 'Munición',
         },
         
         labels = {
             mania_citrico = 'Cítrico',
             mania_iridiscente = 'Iridiscente',
             mania_sellocitrico_seal = 'Sello cítrico',
+            mania_simbolos = 'Símbolos',
         },
         
         -- Collabs (if needed for mod info)
