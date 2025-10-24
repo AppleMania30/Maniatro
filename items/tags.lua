@@ -26,7 +26,7 @@ SMODS.Tag {
                 context.card.temp_edition = true
                 tag:yep('+', G.C.GREEN, function()
                     context.card.temp_edition = nil
-                    context.card:set_edition("e_mania_citrico", true) -- custom citrus edition
+                    context.card:set_edition("e_mania_citrico", true) 
                     context.card.ability.couponed = true
                     context.card:set_cost()
                     G.CONTROLLER.locks[lock] = nil

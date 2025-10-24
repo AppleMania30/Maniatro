@@ -22,7 +22,7 @@ SMODS.Enhancement{
             dollars = 1
         }
     },
-    any_suit = true,
+    any_suit = false,
     replace_base_card = false,
     no_rank = false,
     no_suit = false,
@@ -64,7 +64,7 @@ SMODS.Enhancement{
             discards = 1
         }
     },
-    any_suit = true,
+    any_suit = false,
     replace_base_card = false,
     no_rank = false,
     no_suit = false,
@@ -84,4 +84,3 @@ SMODS.Enhancement{
         end
     end
 }
-

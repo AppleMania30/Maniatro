@@ -5,11 +5,11 @@ SMODS.PokerHand({
     l_mult = 3,
     l_chips = 25,
     example = {
-        { 'S_A', true }, -- Ace of Spades, scores
-        { 'D_2', true }, -- 2 of Diamonds, scores
-        { 'H_2', true }, -- 2 of Hearts, scores
-        { 'C_2', true }, -- 2 of Clubs, scores
-        { 'S_K', false } -- King of Spades, does not score
+        { 'S_A', true }, 
+        { 'D_2', true },
+        { 'H_2', true },
+        { 'C_2', true },
+        { 'S_K', false }
     },
     loc_txt = {
         name = "Loss",
@@ -23,14 +23,13 @@ SMODS.PokerHand({
             local _twos_count = 0
             local eligible_cards = {}
             
-            -- Check for conflicts with higher priority hands
             local other_hands = next(parts._flush) or next(parts._straight)
 
             for i, card in ipairs(hand) do
-                if card:get_id() == 14 and _hasAce == false then -- Ace is ID 14
+                if card:get_id() == 14 and _hasAce == false then 
                     _hasAce = true
                     eligible_cards[#eligible_cards + 1] = card
-                elseif card:get_id() == 2 and _twos_count < 3 then -- 2 is ID 2
+                elseif card:get_id() == 2 and _twos_count < 3 then 
                     _twos_count = _twos_count + 1
                     eligible_cards[#eligible_cards + 1] = card
                 end

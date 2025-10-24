@@ -46,7 +46,6 @@ SMODS.Edition {
             return nil
         end
         
-        -- Ahora aplicar el efecto si cumple las condiciones
         if context.pre_joker or (context.main_scoring and context.cardarea == G.play) then
             return { x_mult = card.edition.x_mult, x_chips = card.edition.x_chips, balance = true }
         end
@@ -103,15 +102,12 @@ SMODS.Edition {
   
     calculate = function(self, card, context)
         if context.pre_joker or (context.main_scoring and context.cardarea == G.play) then
-            -- Calcula el bonus de dinero
             local money_bonus = 0
             
             if card.edition.dollars_mult then
-                -- Multiplicador: dinero_actual * (multiplicador - 1)
                 local current_money = G.GAME.dollars or 0
                 money_bonus = lenient_bignum(current_money * (card.edition.dollars - 1))
             else
-                -- Suma normal (por si quieres desactivar el multiplicador)
                 money_bonus = lenient_bignum(card.edition.dollars)
             end
             

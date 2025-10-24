@@ -90,8 +90,8 @@ SMODS.Voucher {
     calculate = function(self, card, context)
         if context.joker_main then
             return {
-                message = localize{type='variable', key='a_powmult', vars={self.config.extra.emult}},
-                Emult_mod = self.config.extra.emult
+                message = localize{type='variable', key='a_emult', vars={self.config.extra.emult}},
+                e_mult = self.config.extra.emult
             }
         end
     end
