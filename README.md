@@ -11,14 +11,13 @@ involucradas tienen sus respectivos creditos dentro del mod.
 Maniatro is a mod for Balatro that adds new Jokers, consumables, editions, vouchers, card upgrades, and much more to make the gameplay even more chaotic.
 Many of the ideas in the mod were created thanks to my great friends, who have supported me throughout the development of this project. All people involved are credited within the mod.
 
-
-<img width="1009" height="950" alt="image" src="https://github.com/user-attachments/assets/5a396ad2-8f32-4a2c-953a-b75b5f3678f0" />
+<img width="992" height="935" alt="image" src="https://github.com/user-attachments/assets/796f2206-6320-45aa-94df-1ad7a060fc13" />
 
 Maniatro depende de los siguientes mods para poder funcionar correctamente:
 
 Maniatro depends on the following mods to function properly:
 
-- Steamodded: https://github.com/Steamodded/smods/releases/tag/1.0.0-beta-0827c
+- Steamodded: https://github.com/Steamodded/smods/releases/tag/1.0.0-beta-1016c
 - Lovely: https://github.com/ethangreen-dev/lovely-injector/releases/tag/v0.8.0
 - Talisman: https://github.com/SpectralPack/Talisman/releases/tag/v2.5
 
