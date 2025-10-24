@@ -3,16 +3,16 @@
     "name": "Maniatro",
     "display_name": "Maniatro",
     "author": ["AppleMania"],
-    "description": "Un mod caótico para Balatro.",
+    "description": "A chaotic mod for Balatro.",
     "prefix": "mania",
     "main_file": "core.lua",
     "priority": 2763,
     "badge_colour": "40cc04",
     "badge_text_colour": "ffffff",
-    "version": "4.1.0",
+    "version": "4.5.0",
     "dependencies": [
         "Lovely (>=0.8)",
-        "Steamodded (>=1.0.0~BETA-0827c)",
+        "Steamodded (>=1.0.0~BETA-1016c)",
         "Talisman (>=2.5)"
     ]
 }
