@@ -73,7 +73,7 @@ end
 SMODS.current_mod.extra_tabs = function()
     return {
         {
-            label = 'Creditos',
+            label = 'Credits',
             tab_definition_function = function()
                 return {
                     n = G.UIT.ROOT, 
@@ -98,7 +98,7 @@ SMODS.current_mod.extra_tabs = function()
                                         {
                                             n = G.UIT.T, 
                                             config = {
-                                                text = "CREDITOS", 
+                                                text = "CREDITS", 
                                                 colour = G.C.UI.TEXT_LIGHT, 
                                                 scale = 0.7
                                             }
@@ -108,10 +108,10 @@ SMODS.current_mod.extra_tabs = function()
                                 -- Espacio
                                 {
                                     n = G.UIT.R, 
-                                    config = {align = "cm", padding = 0.1}, 
+                                    config = {align = "cm", padding = 0.08}, 
                                     nodes = {}
                                 },
-                                -- Creador
+                                -- Project Lead
                                 {
                                     n = G.UIT.R, 
                                     config = {align = "cm", padding = 0.05}, 
@@ -119,9 +119,9 @@ SMODS.current_mod.extra_tabs = function()
                                         {
                                             n = G.UIT.T, 
                                             config = {
-                                                text = "AppleMania", 
+                                                text = "Project Lead", 
                                                 colour = G.C.GREEN, 
-                                                scale = 0.55
+                                                scale = 0.5
                                             }
                                         }
                                     }
@@ -133,19 +133,20 @@ SMODS.current_mod.extra_tabs = function()
                                         {
                                             n = G.UIT.T, 
                                             config = {
-                                                text = "¡He creado esto!", 
+                                                text = "AppleMania", 
                                                 colour = G.C.UI.TEXT_LIGHT, 
                                                 scale = 0.4
                                             }
                                         }
                                     }
                                 },
+                                -- Espacio
                                 {
                                     n = G.UIT.R, 
-                                    config = {align = "cm", padding = 0.1}, 
+                                    config = {align = "cm", padding = 0.06}, 
                                     nodes = {}
                                 },
-                                -- Ideas (Título)
+                                -- Programmers
                                 {
                                     n = G.UIT.R, 
                                     config = {align = "cm", padding = 0.05}, 
@@ -153,14 +154,48 @@ SMODS.current_mod.extra_tabs = function()
                                         {
                                             n = G.UIT.T, 
                                             config = {
-                                                text = "Ideas:", 
+                                                text = "Programmers", 
                                                 colour = G.C.GREEN, 
                                                 scale = 0.5
                                             }
                                         }
                                     }
                                 },
-                                -- Lista de gente
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.02}, 
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T, 
+                                            config = {
+                                                text = "AppleMania, DoggoDS", 
+                                                colour = G.C.UI.TEXT_LIGHT, 
+                                                scale = 0.4
+                                            }
+                                        }
+                                    }
+                                },
+                                -- Espacio
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.06}, 
+                                    nodes = {}
+                                },
+                                -- Idea providers
+                                {
+                                    n = G.UIT.R, 
+                                    config = {align = "cm", padding = 0.05}, 
+                                    nodes = {
+                                        {
+                                            n = G.UIT.T, 
+                                            config = {
+                                                text = "Idea providers", 
+                                                colour = G.C.GREEN, 
+                                                scale = 0.5
+                                            }
+                                        }
+                                    }
+                                },
                                 {
                                     n = G.UIT.R,
                                     config = {align = "cm", padding = 0.02},
@@ -168,7 +203,7 @@ SMODS.current_mod.extra_tabs = function()
                                         {
                                             n = G.UIT.T,
                                             config = {
-                                                text = "Xifox, LukexsGame, Javier25, DoggoDS,", 
+                                                text = "AppleMania, LukexsGame, DoggoDS, Xifox,", 
                                                 colour = G.C.UI.TEXT_LIGHT,
                                                 scale = 0.4
                                             }
@@ -182,7 +217,7 @@ SMODS.current_mod.extra_tabs = function()
                                         {
                                             n = G.UIT.T,
                                             config = {
-                                                text = " Nauiyo, Julio24pro, Bunbxnblxxd, Lauxs_v0,", 
+                                                text = "Javier25, Nauiyo, Bunbxnblxxd, Lauxs_v0,", 
                                                 colour = G.C.UI.TEXT_LIGHT,
                                                 scale = 0.4
                                             }
@@ -196,13 +231,13 @@ SMODS.current_mod.extra_tabs = function()
                                         {
                                             n = G.UIT.T,
                                             config = {
-                                                text = " Alberto.rueda_07, Jesu.supongo, K4l1zz_33 ", 
+                                                text = "Alberto.rueda_07, Jesu.supongo, K4l1zz_33, Dogg-fly", 
                                                 colour = G.C.UI.TEXT_LIGHT,
                                                 scale = 0.4
                                             }
                                         }
                                     }
-                                }
+                                },
                             }
                         }
                     }
