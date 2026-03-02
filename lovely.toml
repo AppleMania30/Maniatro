@@ -1,0 +1,39 @@
+[manifest]
+version = "1.0.0"
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "scoring_hand = final_scoring_hand"
+position = "after"
+payload = '''add_alreves_cards(scoring_hand)'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "for _, v in ipairs(SMODS.get_card_areas('playing_cards')) do"
+position = "at"
+payload = "for _, v in ipairs(SMODS.get_card_areas('playing_cards', 'main_scoring')) do"
+match_indent = true
+many = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "SMODS.calculate_main_scoring({cardarea = v, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands}, v == G.play and scoring_hand or nil)"
+position = "at"
+payload = "SMODS.calculate_main_scoring({cardarea = v.cardarea or v, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands}, is_scoring_area_alreves(v.cardarea or v) and scoring_hand or nil)"
+match_indent = true
+many = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "highlight_card(scoring_hand[i],(i-0.999)/5,'up')"
+position = "at"
+payload = '''if scoring_hand[i].area == G.play then
+  highlight_card(scoring_hand[i],(i-0.999)/5,'up')
+end'''
+match_indent = true
+many = true
