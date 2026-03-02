@@ -1,6 +1,5 @@
 return {
     descriptions = {
-        -- Jokers
         Joker = {
             j_mania_apple = {
                 name = 'Manzana verde',
@@ -166,6 +165,28 @@ return {
                     '{C:inactive}(Actual: {X:mult,C:white}X#1#{C:inactive})'
                 }
             },
+            j_mania_doggo = {
+                name = 'Doggo',
+                text = {
+                    'Gana {C:attention}Carga{} igual al {C:chips}0.25%{} de las fichas de cada mano jugada.',
+                    'En la {C:attention}última mano{} de la ronda, otorga {X:dark_edition,C:white}^#1#{} multi.',
+                    '{C:inactive}(Se reinicia tras activarse){}'
+                }
+            },
+            j_mania_lukexs = {
+                name = 'Lukexs',
+                text = {
+                    'Cuando derrotas a una {C:red}Ciega Jefe{}, este Joker añade',
+                    'un Rey de {C:attention}acero{}, {C:dark_edition}policromo{} con {C:red}sello rojo{}',
+                    'de un palo aleatorio a tu baraja.'
+                }
+            },
+            j_mania_javier25 = {
+                name = 'Javier25',
+                text = {
+                    '{C:attention}+1{} tamaño de jugada.',
+                }
+            },
             j_mania_julio = {
                 name = 'Julio',
                 text = {
@@ -173,6 +194,16 @@ return {
                     'Cada {C:spectral}4 manos{} jugadas,',
                     '{X:dark_edition,C:white}^2{} multi',
                     '{C:inactive}Manos: {C:spectral}#2#/4'
+                }
+            },
+            j_mania_al_reves = {
+                name = 'Al revés',
+                text = {
+                    'Al comprar cualquier {C:attention}Joker{}, este se vuelve',
+                    '{C:dark_edition}Negativo{}, {C:dark_edition}Cítrico{} o {C:dark_edition}Iridiscente{}.',
+                    ' ',
+                    'La mano jugada y las cartas en mano {C:attention}contribuyen a la puntuación{}',
+                    'y se reactivan {C:attention}#1#{} vez(s) igual al número de Jokers en tu posesión.',
                 }
             },
             j_mania_box = {
@@ -208,6 +239,14 @@ return {
                     '{C:inactive}Rondas restantes: {C:attention}#2#{}'
                 }
             },
+            j_mania_bella = {
+                name = 'Bella',
+                text = {
+                    'Por cada {C:dark_edition}gato{} que tengas',
+                    'comprado, {X:chips,C:white}+2X{} chips.',
+                    'Actual: {X:chips,C:white}X#1#{}'
+                }
+            },
             j_mania_rufino = {
                 name = 'Rufino',
                 text = {
@@ -215,16 +254,8 @@ return {
                     'Actual: {C:red}+#2#{} multi'
                 }
             },
-            j_mania_pisu = {
-                name = 'Pisu',
-                text = {
-                    'Por cada {C:dark_edition}gato{} que tengas',
-                    'comprado, {X:chips,C:white}+2X{} chips.',
-                    'Actual: {X:chips,C:white}X#1#{}'
-                }
-            },
-            j_mania_evil_pisu = {
-                name = 'EVIL Pisu',
+            j_mania_evil_rufino = {
+                name = 'EVIL Rufino',
                 text = {
                     '{X:mult,C:white}X#1#{} multi',
                     'Aumenta {X:mult,C:white}+0.01X{} por',
@@ -256,11 +287,35 @@ return {
                     '{C:inactive}Actual: {X:mult,C:white}X#1#'
                 }
             },
+            j_mania_jack = {
+                name = 'Jack',
+                text = {
+                    'Al final de la tienda, destruye todos los {C:purple}consumibles{}',
+                    'y gana {C:blue}+10{} chips por cada uno.',
+                    '{C:inactive}Actual: {C:blue}+#1#{} chips'
+                }
+            },
+            j_mania_kiki = {
+                name = 'Kiki',
+                text = {
+                    'Si juegas exactamente {C:attention}5{} cartas, hay una probabilidad',
+                    'de {C:green}#1# entre #2#{} que una de ellas se',
+                    'convierta en {C:attention}oro{}, {C:attention}acero{} o {C:attention}vidrio{}',
+                }
+            },
             j_mania_pompo = {
                 name = 'Pompo',
                 text = {
                     'Por cada {C:purple}#3# consumibles{} usados, gana {C:green}+1!{} multi',
                     'Actual: {C:green}#1#!{} = {C:red}+#2#{} multi'
+                }
+            },
+            j_mania_luna2 = {
+                name = 'Luna',
+                text = {
+                    'Gana {C:chips}+#1#{} chips permanentes',
+                    'por cada carta jugada que puntúe.',
+                    '{C:inactive}(Actual: {C:chips}+#2#{C:inactive} chips)'
                 }
             },
             j_mania_blue = {
@@ -283,6 +338,14 @@ return {
                 name = 'Tortuga',
                 text = {
                     '{C:inactive}No hace nada.{}'
+                }
+            },
+            j_mania_hamdo = {
+                name = 'Hamdo',
+                text = {
+                    'Al final de cada ronda, {C:attention}consume{}',
+                    'un {C:purple}consumible{} al azar y gana',
+                    '{C:money}+5${} de valor de venta.',
                 }
             },
             j_mania_spamton = {
@@ -323,6 +386,22 @@ return {
                     'Actual: {X:mult,C:white}X#1#{} multi | Rondas: {C:attention}#2#/3{}'
                 }
             },
+            j_mania_original = {
+                name = 'Comodín original',
+                text = {
+                    'Da {C:mult}+N{} multi dependiendo del valor',
+                    'de la {C:attention}última carta{} jugada en tu mano.',
+                    'Al venderlo, se convierte en',
+                    '{C:dark_edition}Comodín Monocromático{}',
+                }
+            },
+            j_mania_monocromatico = {
+                name = 'Comodín monocromático',
+                text = {
+                    'Da {C:mult}-N{} multi dependiendo del valor',
+                    'de la {C:attention}última carta{} jugada en tu mano.',
+                }
+            },
             j_mania_pride = {
                 name = 'Pride',
                 text = {
@@ -343,10 +422,9 @@ return {
                 name = 'Ludopatía',
                 text = {
                     'Al final de cada mano,',
-                    'gana {C:chips}+15{} chips y {C:mult}+5{} multi por cada',
-                    '{C:attention}Símbolo{} que poseas.',
-                    '{C:inactive}(Símbolos: #1#)',
-                    '{C:mult}+#2#{} Multi | {C:chips}+#3#{} Chips'
+                    'gana {C:chips}+15{} chips y {C:mult}+5{} multi',
+                    'por cada {C:attention}Símbolo{} que poseas.',
+                    '{C:chips}+#3#{} Chips | {C:mult}+#2#{} Multi'
                 }
             },
             j_mania_euro = {
@@ -501,9 +579,124 @@ return {
                     '{C:inactive}Se reinicia al final de la ronda.{}',
                 }
             },
+            j_mania_call = {
+                name = 'Call',
+                text = {
+                    'Otorga el {C:attention}1%{} de las fichas',
+                    'requeridas por la {C:attention}Ciega{} actual.',
+                    '{C:inactive}(Actual: {C:blue}+#1#{C:inactive} Fichas)'
+                }
+            },
+            j_mania_freddy = {
+                name = 'Freddy Fazbear',
+                text = {
+                    'Cada {C:attention}As{}, {C:attention}9{}, {C:attention}8{} o {C:attention}7{} jugado da {C:mult}+20{} multi.',
+                    'Si este Joker está en el {C:attention}extremo derecho{},',
+                    'da {C:mult}+40{} multi en su lugar.'
+                }
+            },
+            j_mania_buscaminas = {
+                name = 'Buscaminas',
+                text = {
+                    'Las cartas {C:attention}numeradas del 1 al 8{} tienen',
+                    'probabilidad de dar {C:mult}+N{} multi igual a su valor.',
+                    '{C:inactive}(As: 80% | 2: 70% | 3: 60% | 4: 50%)',
+                    '{C:inactive}(5: 40% | 6: 30% | 7: 20% | 8: 10%)'
+                }
+            },
+            j_mania_kloun = {
+                name = 'Kloun...?',
+                text = {
+                    'Gana {C:money}+4${} si la mano jugada',
+                    'tiene {C:attention}2{} palos distintos o más.'
+                }
+            },
+            j_mania_jester = {
+                name = 'Jester...?',
+                text = {
+                    '{C:chips}+#1#{} fichas y {C:mult}+#2#{} multi.',
+                    'Gana {C:chips}+#3#{} fichas y {C:mult}+#4#{} multi',
+                    'por cada {C:attention}Jota{} que anote.'
+                }
+            },
+            j_mania_magician = {
+                name = 'Magician...?',
+                text = {
+                    'Reduce el precio de la tienda',
+                    'entre un {C:attention}5%{} y {C:attention}20%{}.',
+                    '{C:inactive}(Actual: {C:attention}#1#%{} desc.){}'
+                }
+            },
+            j_mania_spammer = {
+                name = 'Spammer...?',
+                text = {
+                    '{C:mult}+#1#{} multi.',
+                    'Al vencer una {C:attention}ciega jefe{}, crea',
+                    'un joker {C:dark_edition}negativo{} {C:attention}raro{} al azar.'
+                }
+            },
+            j_mania_wrestler_collar = {
+                name = 'Collar de luchador',
+                text = {
+                    'Si es la {C:attention}última mano{} de la ronda,',
+                    'todas las cartas jugadas dan {X:mult,C:white}X#1#{} multi.',
+                }
+            },
+            j_mania_tanque = {
+                name = 'Collar de tanque',
+                text = {
+                    'Mientras tengas una carta de piedra',
+                    'en tu mano, {X:mult,C:white}X#1#{} multi.',
+                }
+            },
+            j_mania_cazador = {
+                name = 'Collar de cazador',
+                text = {
+                    'Si juegas una mano con {C:attention}una sola carta{},',
+                    '{C:green}1 de 5{} de probabilidad de dar {X:green,C:white}X#1#!{} multi.',
+                }
+            },
+            j_mania_mago = {
+                name = 'Collar de mago',
+                text = {
+                    'Si acabas la ronda jugando',
+                    'solo {C:attention}una mano{}, obtienes',
+                    'una carta {C:spectral}espectral{} al azar.'
+                }
+            },
+            j_mania_clerigo = {
+                name = 'Collar de clérigo',
+                text = {
+                    'En la {C:attention}primera mano{},',
+                    'deshabilita la {C:red}Ciega Jefe.{}',
+                }
+            },
+            j_mania_ladron = {
+                name = 'Collar de ladrón',
+                text = {
+                    '{C:green}1 entre 4{} de que la reposición de la tienda te dé {C:money}dinero{} igual al',
+                    'número de veces que has repuesto la tienda en esta partida.',
+                    '{C:inactive}Reposiciones: {C:attention}#1#{}'
+                }
+            },
+            j_mania_nicromante = {
+                name = 'Collar de nigromante',
+                text = {
+                    'Reduce el requerimiento de la ciega en un {C:green}10%{}.',
+                    'Ese {C:green}porcentaje{} se convierte en {C:chips}chips{}.',
+                    '{C:inactive}(Actual: {C:chips}+#1#{C:inactive} chips)'
+                }
+            },
+            j_mania_theyamminator = {
+                name = 'The Yamminator',
+                text = {
+                    '{X:mult,C:white}X#1#{} Multi',
+                    'Cada vez que una carta o un comodin se activa, suma {X:mult,C:white}+0.05X{} Multi.',
+                    '{C:inactive}Se reinicia al acabar la mano.{}',
+                }
+            },
         },
-        
-        -- Consumables (Tarot, Spectral, Symbols)
+
         Tarot = {
             c_mania_acidity = {
                 name = 'La acidez',
@@ -527,7 +720,7 @@ return {
                 }
             },
         },
-        
+
         Spectral = {
             c_mania_vitamina = {
                 name = 'Vitamina',
@@ -545,7 +738,7 @@ return {
                 }
             },
         },
-        
+
         simbolos = {
             c_mania_cerezas = {
                 name = 'Cerezas',
@@ -604,7 +797,7 @@ return {
                 }
             },
         },
-        
+
         municion = {
             c_mania_shell = {
                 name = 'Cartucho de escopeta',
@@ -613,7 +806,7 @@ return {
                 }
             },
         },
-        
+
         Planet = {
             c_mania_citra = {
                 name = 'Citra',
@@ -624,9 +817,35 @@ return {
                     '{C:blue}+25{} chips'
                 }
             },
+            c_mania_visio = {
+                name = 'Visio',
+                text = {
+                    'Aumento de nivel',
+                    '{C:attention}Doble Trío{}',
+                    '{C:red}+2{} multi y',
+                    '{C:blue}+20{} chips'
+                }
+            },
+            c_mania_aromatidas = {
+                name = 'Aromátidas',
+                text = {
+                    'Aumento de nivel',
+                    '{C:attention}Triple Pareja{}',
+                    '{C:red}+3{} multi y',
+                    '{C:blue}+20{} chips'
+                }
+            },
+            c_mania_ilyko = {
+                name = 'Ilyko',
+                text = {
+                    'Aumento de nivel',
+                    '{C:attention}Color+{}',
+                    '{C:red}+4{} multi y',
+                    '{C:blue}+30{} chips'
+                }
+            },
         },
-        
-        -- Enhancements
+
         Enhanced = {
             m_mania_citrico = {
                 name = 'Carta ácida',
@@ -641,8 +860,7 @@ return {
                 }
             },
         },
-        
-        -- Editions
+
         Edition = {
             e_mania_citrico = {
                 name = 'Cítrico',
@@ -656,17 +874,12 @@ return {
             e_mania_iridiscente = {
                 name = 'Iridiscente',
                 text = {
-                    'Multi {X:mult,C:white}X2{} ',
-                    'Chips {X:chips,C:white}X2{}',
-                    'Multi {X:dark_edition,C:white}^1.5{} ',
-                    'Chips {X:dark_edition,C:white}^1.5{}',
-                    'Multi {X:black,C:red}^^1.2{}',
-                    'Chips {X:black,C:blue}^^1.2{}',
-                    '{X:money,C:white}X5${}',
+                    'Reactiva esta carta un número de veces igual',
+                    'a la suma de {C:blue}manos{} y {C:red}descartes{} restantes en tu ronda.',
                 }
             },
         },
-        -- Decks
+
         Back = {
             b_mania_protodeck = {
                 name = "Baraja programadora",
@@ -675,8 +888,34 @@ return {
                     "{C:attention}Proto{} {C:dark_edition}Eterno{}"
                 }
             },
+            b_mania_melondeck = {
+                name = "Baraja de sandía",
+                text = {
+                    "Comienza la partida con",
+                    "{C:attention}13{} {C:green}manzanas{}, {C:attention}13{} {C:spades}picas{} y",
+                    "{C:attention}13{} {C:hearts}corazones{} en la baraja.",
+                    "{C:attention}+1{} tamaño de jugada"
+                }
+            },
         },
-        -- Vouchers
+
+        Blind = {
+            bl_mania_appleblind = {
+                name = "La Manzana",
+                text = {
+                    "Todos los palos están desactivados",
+                    "excepto las Manzanas."
+                }
+            },
+            bl_mania_wornblind = {
+                name = "El Gusano",
+                text = {
+                    "Todas las manzanas",
+                    "se debilitan."
+                }
+            },
+        },
+
         Voucher = {
             v_mania_todoalrojo = {
                 name = 'Todo al rojo',
@@ -692,8 +931,36 @@ return {
                     'por el resto de la partida.'
                 }
             },
+            v_mania_pactocitrico = {
+                name = 'Pacto Cítrico',
+                text = {
+                    'Los jokers comprados tienen un {C:green}15%{} de',
+                    'probabilidad de volverse {C:dark_edition}cítricos{}.'
+                }
+            },
+            v_mania_iridiscencia = {
+                name = 'Iridiscencia',
+                text = {
+                    'Los jokers comprados tienen un {C:green}10%{} de',
+                    'probabilidad de volverse {C:dark_edition}iridiscentes{}.'
+                }
+            },
+            v_mania_cosecha = {
+                name = 'Cosecha',
+                text = {
+                    'Las cartas con el palo de {C:green}Manzana{}',
+                    'dan {C:blue}+5{} chips adicionales cuando puntúan.'
+                }
+            },
+            v_mania_recogida = {
+                name = 'Recogida',
+                text = {
+                    'Las cartas con el palo de {C:green}Manzana{}',
+                    'dan {C:red}+10{} multi adicional cuando puntúan.'
+                }
+            },
         },
-        -- Tags
+
         Tag = {
             tag_mania_citrica = {
                 name = 'Etiqueta cítrica',
@@ -703,8 +970,22 @@ return {
                     "se convierte en {C:dark_edition}cítrico{}"
                 }
             },
+            tag_mania_maniatro_inusual = {
+                name = 'Etiqueta ácida',
+                text = {
+                    "En la tienda hay un",
+                    "{C:green}Comodín inusual de Maniatro{}"
+                }
+            },
+            tag_mania_maniatro_raro = {
+                name = 'Etiqueta dulce',
+                text = {
+                    "En la tienda hay un",
+                    "{C:red}Comodín raro de Maniatro{}"
+                }
+            },
         },
-        -- Seals
+
         Other = {
             mania_sellocitrico_seal = {
                 name = 'Sello cítrico',
@@ -741,52 +1022,60 @@ return {
                 },
                 group_name = "¡Planta tus semillas!"
             },
+            mania_temporal = {
+                name = 'Temporal',
+                text = {
+                    "No se puede {C:attention}vender{} ni {C:attention}destruir{}",
+                    "durante {C:attention}#1#{} rondas."
+                }
+            },
+            mania_credit_idea = {
+                name = "Idea por",
+                text = {
+                    "{C:green}#1#{}"
+                },
+            },
         },
     },
     misc = {
-        -- Suits
         suits_plural = {
             mania_applesuit = 'Manzanas',
         },
         suits_singular = {
             mania_applesuit = 'Manzana',
         },
-        
-        -- Poker Hands
         poker_hands = {
             mania_pkr_perdida = 'Loss',
+            mania_pkr_triple_pareja = 'Triple Pareja',
+            mania_pkr_doble_trio = 'Doble Trío',
+            mania_pkr_color_plus = 'Color+',
         },
         poker_hand_descriptions = {
             mania_pkr_perdida = {
                 'Una mano que contiene un As y tres 2s.'
             },
+            mania_pkr_triple_pareja = {
+                'Tres parejas.'
+            },
+            mania_pkr_doble_trio = {
+                'Dos tríos.'
+            },
+            mania_pkr_color_plus = {
+                'Seis cartas del mismo palo.'
+            },
         },
-        
-        -- Dictionary
         dictionary = {
             k_mania_maniatromod = 'Jokers Maniatro',
+            k_mania_booster_group = '¡Planta tus semillas!',
+            b_mania_simbolos = 'Símbolos',
+            b_mania_municion = 'MUNICIÓN',
         },
-        
         labels = {
             mania_citrico = 'Cítrico',
             mania_iridiscente = 'Iridiscente',
             mania_sellocitrico_seal = 'Sello cítrico',
             mania_simbolos = 'Símbolos',
-        },
-        
-        -- Collabs (if needed for mod info)
-        collabs = {
-            Maniatro = {
-                "Mod creado por AppleMania",
-                "¡Gracias por jugar!"
-            }
-        },
-        
-        -- Additional v_text for vouchers display
-        v_text = {
-            ch_c_all_eternal = {
-                "Todos los Jokers son {C:dark_edition}Eternos{}"
-            },
+            mania_temporal = 'Temporal',
         },
     },
 }
