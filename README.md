@@ -17,9 +17,9 @@ Maniatro depende de los siguientes mods para poder funcionar correctamente:
 
 Maniatro depends on the following mods to function properly:
 
-- Steamodded: https://github.com/Steamodded/smods/releases/tag/1.0.0-beta-1016c
-- Lovely: https://github.com/ethangreen-dev/lovely-injector/releases/tag/v0.8.0
-- Talisman: https://github.com/SpectralPack/Talisman/releases/tag/v2.5
+- Steamodded: https://github.com/Steamodded/smods/releases
+- Lovely: https://github.com/ethangreen-dev/lovely-injector/releases
+- Talisman: https://github.com/SpectralPack/Talisman/releases
 
 Tienen que ser la ultima version SI O SI. 
 
