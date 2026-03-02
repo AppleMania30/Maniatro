@@ -51,6 +51,7 @@ SMODS.Edition {
         end
     end
 }
+
 -- Iridiscente
 SMODS.Shader{
     key = 'allinone',
@@ -60,21 +61,10 @@ SMODS.Shader{
 SMODS.Edition {
     key = 'iridiscente',
     shader = 'allinone',
-    config = {
-        x_mult = 2,
-        x_chips = 2,
-        e_mult = 1.5,
-        e_chips = 1.5,
-        hypermult_n = 1.2,
-        hypermult_arrows = 2,
-        hyperchips_n = 1.2,
-        hyperchips_arrows = 2,
-        dollars = 5,
-        dollars_mult = true   
-    },
+    config = {},
     in_shop = true,
     weight = 5,
-    extra_cost = 10,
+    extra_cost = 6,
     apply_to_float = true,
     badge_colour = HEX('c468a7'),
     sound = { sound = "polychrome1", per = 1.2, vol = 0.4 },
@@ -84,13 +74,8 @@ SMODS.Edition {
         name = 'Iridiscente',
         label = 'Iridiscente',
         text = {
-            [1] = 'Multi {X:mult,C:white}X2{} ',
-            [2] = 'Chips {X:chips,C:white}X2{}',
-            [3] = 'Multi {X:dark_edition,C:white}^1.5{} ',
-            [4] = 'Chips {X:dark_edition,C:white}^1.5{}',
-            [5] = 'Multi {X:black,C:red}^^1.2{}',
-            [6] = 'Chips {X:black,C:blue}^^1.2{}',
-            [7] = '{X:money,C:white}X5${}',
+            [1] = 'Se retriggea {C:attention}1{} vez por cada',
+            [2] = '{C:blue}mano{} y {C:red}descarte{} restante',
         }
     },
     unlocked = true,
@@ -99,26 +84,16 @@ SMODS.Edition {
     get_weight = function(self)
         return G.GAME.edition_rate * self.weight
     end,
-  
+
     calculate = function(self, card, context)
-        if context.pre_joker or (context.main_scoring and context.cardarea == G.play) then
-            local money_bonus = 0
-            
-            if card.edition.dollars_mult then
-                local current_money = G.GAME.dollars or 0
-                money_bonus = lenient_bignum(current_money * (card.edition.dollars - 1))
-            else
-                money_bonus = lenient_bignum(card.edition.dollars)
-            end
-            
-            return { 
-                x_mult = card.edition.x_mult, 
-                x_chips = card.edition.x_chips, 
-                e_mult = card.edition.e_mult, 
-                e_chips = card.edition.e_chips, 
-                hypermult = {card.edition.hypermult_arrows, card.edition.hypermult_n}, 
-                hyperchips = {card.edition.hyperchips_arrows, card.edition.hyperchips_n}, 
-                dollars = money_bonus
+        local retrigs = (G.GAME.current_round.hands_left or 0) + (G.GAME.current_round.discards_left or 0)
+        if retrigs <= 0 then return end
+
+        if context.other_card == card and (context.repetition or context.retrigger_joker_check) then
+            return {
+                message = localize('k_again_ex'),
+                repetitions = retrigs,
+                card = card,
             }
         end
     end

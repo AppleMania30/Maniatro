@@ -716,10 +716,6 @@ SMODS.Consumable {
         if G.STATE == G.STATES.SHOP and not context.buying then
             if G.GAME.current_round and G.GAME.current_round.reroll_cost ~= 0 then
                 G.GAME.current_round.reroll_cost = 0
-                card_eval_status_text(card, 'extra', nil, nil, nil, {
-                    message = "¡Free rerolls!",
-                    colour = G.C.MONEY
-                })
             end
         end
     end,
@@ -821,9 +817,7 @@ SMODS.Consumable {
   calculate = function(self, card, context)
         if context.end_of_round and not context.individual and not context.repetition then
             return {
-                message = "+"..tostring(card.ability.extra.end_round_dollars).." $",
                 dollars = card.ability.extra.end_round_dollars,
-                colour = G.C.MONEY,
                 card = card
             }
         end

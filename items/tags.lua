@@ -38,3 +38,99 @@ SMODS.Tag {
         end
     end
 }
+
+-- Etiqueta Inusual
+SMODS.Atlas{
+    key = 'tag_maniatro_inusual',
+    path = 'tag_acida.png',
+    px = 32,
+    py = 32,
+}
+
+SMODS.Tag {
+    key = "maniatro_inusual",
+    loc_txt = {
+        name = 'Etiqueta Maniatro Inusual',
+        text = {
+            "La tienda tiene un",
+            "{C:uncommon}comodín Maniatro inusual{} gratuito"
+        }
+    },
+    atlas = "tag_maniatro_inusual",
+    pos = { x = 0, y = 0 },
+    apply = function(self, tag, context)
+        if context.type == 'store_joker_create' then
+            local candidates = {}
+            for _, v in pairs(G.P_CENTER_POOLS['Maniatromod']) do
+                if v.rarity == 2 then
+                    candidates[#candidates + 1] = v.key
+                end
+            end
+            local chosen = pseudorandom_element(candidates, pseudoseed("maniatrotag_inusual")) or "j_joker"
+            local card = SMODS.create_card({
+                set = "Joker",
+                area = context.area,
+                key = chosen,
+                key_append = "maniatrotaginusual"
+            })
+            create_shop_card_ui(card, 'Joker', context.area)
+            card.states.visible = false
+            tag:yep('+', G.C.GREEN, function()
+                card:start_materialize()
+                card.ability.couponed = true
+                card:set_cost()
+                return true
+            end)
+            tag.triggered = true
+            return card
+        end
+    end
+}
+
+-- Etiqueta Raro
+SMODS.Atlas{
+    key = 'tag_maniatro_raro',
+    path = 'tag_dulce.png',
+    px = 32,
+    py = 32,
+}
+
+SMODS.Tag {
+    key = "maniatro_raro",
+    loc_txt = {
+        name = 'Etiqueta Maniatro Raro',
+        text = {
+            "La tienda tiene un",
+            "{C:rare}comodín Maniatro raro{} gratuito"
+        }
+    },
+    atlas = "tag_maniatro_raro",
+    pos = { x = 0, y = 0 },
+    apply = function(self, tag, context)
+        if context.type == 'store_joker_create' then
+            local candidates = {}
+            for _, v in pairs(G.P_CENTER_POOLS['Maniatromod']) do
+                if v.rarity == 3 then
+                    candidates[#candidates + 1] = v.key
+                end
+            end
+            local chosen = pseudorandom_element(candidates, pseudoseed("maniatrotag_raro")) or "j_joker"
+            local card = SMODS.create_card({
+                set = "Joker",
+                area = context.area,
+                key = chosen,
+                key_append = "maniatrotagraro"
+            })
+            create_shop_card_ui(card, 'Joker', context.area)
+            card.states.visible = false
+            tag:yep('+', G.C.GREEN, function()
+                card:start_materialize()
+                card.ability.couponed = true
+                card:set_cost()
+                return true
+            end)
+            tag.triggered = true
+            return card
+        end
+    end
+}

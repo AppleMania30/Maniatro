@@ -1,7 +1,7 @@
--- Booster Atlas
+-- Apple Seeds
 SMODS.Atlas{
-    key = 'boosteratlas',
-    path = 'boosters.png',
+    key = 'booster_maniatro',
+    path = 'appleseeds.png',
     px = 71,
     py = 95,
 }
@@ -9,7 +9,7 @@ SMODS.Atlas{
 -- Booster Pack 1
 SMODS.Booster{
     key = 'booster_maniatro',
-    atlas = 'boosteratlas', 
+    atlas = 'booster_maniatro', 
     pos = { x = 0, y = 0 },
     discovered = true,
     loc_txt= {
@@ -47,11 +47,18 @@ SMODS.Booster{
     in_pool = function() return true end
 }
 
--- Booster Pack 2
+-- Tomato Seeds
+SMODS.Atlas{
+    key = 'booster_maniatro2',
+    path = 'tomatoseeds.png',
+    px = 71,
+    py = 95,
+}
+
 SMODS.Booster{
     key = 'booster_maniatro2',
-    atlas = 'boosteratlas', 
-    pos = { x = 1, y = 0 },
+    atlas = 'booster_maniatro2', 
+    pos = { x = 0, y = 0 },
     discovered = true,
     loc_txt= {
         name = 'Semillas de tomates',
@@ -88,11 +95,18 @@ SMODS.Booster{
     in_pool = function() return true end
 }
 
--- Booster Pack 3
+-- Berry Seeds
+SMODS.Atlas{
+    key = 'booster_maniatro3',
+    path = 'berryseeds.png',
+    px = 71,
+    py = 95,
+}
+
 SMODS.Booster{
     key = 'booster_maniatro3',
-    atlas = 'boosteratlas', 
-    pos = { x = 0, y = 1 },
+    atlas = 'booster_maniatro3', 
+    pos = { x = 0, y = 0 },
     discovered = true,
     loc_txt= {
         name = 'Semillas de arandanos',
@@ -130,10 +144,17 @@ SMODS.Booster{
 }
 
 -- Booster Pack 4
+SMODS.Atlas{
+    key = 'booster_maniatro4',
+    path = 'melonseeds.png',
+    px = 71,
+    py = 95,
+}
+
 SMODS.Booster{
     key = 'booster_maniatro4',
-    atlas = 'boosteratlas', 
-    pos = { x = 1, y = 1 },
+    atlas = 'booster_maniatro4', 
+    pos = { x = 0, y = 0 },
     discovered = true,
     loc_txt= {
         name = 'Semillas de sandias',
